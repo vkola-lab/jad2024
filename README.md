@@ -16,7 +16,8 @@ B. After generating the individual .nii binary masks of each region. You will ne
 
 
 ## II. Generate Feature Embeddings of Regional Image Segments 
-In the folder generate_embeddings you will find all code required for generating a feature embedding for each .nii brain region image using an encoder neural network. 
+In the folder generate_embeddings you will find all code required for generating a feature embedding for each .nii brain region image using an encoder neural network. <br>
+![Screenshot 2023-05-09 at 2 09 55 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/5edaf2c5-2330-47bc-b420-6396bf0c86c1)
 
 
 
