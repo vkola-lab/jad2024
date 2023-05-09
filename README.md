@@ -7,11 +7,11 @@ In this repository, you will find all the code nessescary to:
 
 ## I. MRI Processing Pipeline 
 In the folder mri_processing you will find all MRI processing code. <br>
-A. This code will provide all the steps nessesary to take MRI images which has been aligned to the Neuromorphometrics regional atlas and generate 142 individual .nii files of each brain region. These files represent a binary mask of that brain region. 
+A. First run fslmathsloop2.sh. This script will take MRI images that has been aligned to the Neuromorphometrics regional atlas and generate 142 individual .nii files of each brain region. The resulting files represent a binary mask of that brain region. 
 
 ![Screenshot 2023-05-09 at 2 26 38 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/3c9227b9-5f42-4be0-a1ac-3e0d8c19ad70)
 
-B. After generating the individual .nii binary masks of each region. You will need to run bin_to_sig_mask.ipynb to obtain the MRI signal intensity for that region. This code multiplies the binary mask but the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. <br>
+B. Next you will need to run bin_to_sig_mask.ipynb to obtain the MRI signal intensity for each region. This script multiplies the binary mask but the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. <br>
 ![Screenshot 2023-05-09 at 2 21 36 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/56ee2292-92d4-4620-af33-85bdbabad10a)
 
 
