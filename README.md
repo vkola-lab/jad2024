@@ -22,7 +22,8 @@ In the folder generate_embeddings you will find all code required for generating
 
 
 ## III. Construct Gaussian Graphical Model for pMCI and sMCI populations 
-In the folder construct_ggm, you will find the code required to construct a gaussian graphical model of pMCI and sMCI populations, where each node represents a (1 region x n patient embeddings) vector containing the embeddings for that brain region across all patients within that population. 
+In the folder construct_ggm, you will find the code required to construct a gaussian graphical model of pMCI and sMCI populations, where each node represents a (1 region x n patient embeddings) vector containing the embeddings for that brain region across all patients within that population. <br>
+![Screenshot 2023-05-09 at 2 24 10 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/35d09a14-2812-4b0c-88f6-5004f8406ba3)
 
 ## IV. Analyze Graph Level Metrics 
 In the folder analyze_graphs you will find the code required to calculate graph level metrics such as modularity, effiency, etc. for both the pMCI and sMCI graphs and analyze differences between populations. 
