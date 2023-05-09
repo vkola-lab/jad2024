@@ -7,6 +7,7 @@ In this repository, you will find all the code nessescary to:
 
 ## I. MRI Processing Pipeline 
 In the folder mri_processing you will find all MRI processing code. This code will provide all the steps nessesary to take MRI images which has been aligned to the Neuromorphometrics regional atlas and generate 142 individual .nii files of each brain region. 
+
 ![Screenshot 2023-05-09 at 2 08 00 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/891528e6-c94f-4c56-9717-bfac9d58bf16)
 
 ## II. Generate Feature Embeddings of Regional Image Segments 
