@@ -11,7 +11,7 @@ A. This code will provide all the steps nessesary to take MRI images which has b
 
 ![Screenshot 2023-05-09 at 2 08 00 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/891528e6-c94f-4c56-9717-bfac9d58bf16)
 
-B. After generating the individual .nii binary masks of each region. You will need to run bin_to_sig_mask.ipynb to obtain the MRI signal intensity for that region. This code multiplies the binary mask but the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. 
+B. After generating the individual .nii binary masks of each region. You will need to run bin_to_sig_mask.ipynb to obtain the MRI signal intensity for that region. This code multiplies the binary mask but the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. <br>
 ![Screenshot 2023-05-09 at 2 21 36 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/56ee2292-92d4-4620-af33-85bdbabad10a)
 
 
