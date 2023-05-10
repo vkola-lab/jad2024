@@ -1,4 +1,4 @@
-# MCI MRI Feature Embedding Generation & Graphical Model Repository 
+# MCI MRI Encoder Neural Network & Graphical Model Repository 
 In this repository, you will find all the code nessescary to:
 1. Process regionally segmented MRI images into individual regional .nii image files 
 2. Generate feature embeddings of regional .nii images 
