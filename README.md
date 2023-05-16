@@ -11,7 +11,7 @@ A. First run **fslmathsloop2.sh**. This script will take MRI images that has bee
 
 ![Screenshot 2023-05-09 at 2 26 38 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/3c9227b9-5f42-4be0-a1ac-3e0d8c19ad70)
 
-B. Next you will need to run **bin_to_sig_mask.ipynb** to obtain the MRI signal intensity for each region. This script multiplies the binary mask but the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. <br>
+B. Next you will need to run **bin_to_sig_mask.ipynb** to obtain the MRI signal intensity for each region. This script multiplies the binary mask by the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. <br>
 ![Screenshot 2023-05-09 at 2 21 36 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/56ee2292-92d4-4620-af33-85bdbabad10a)
 
 C. The resulting MRI region signal masks will likely take up a lot of storage space in their .nii format. You can run **zip_unzip.sh** in order to compress them into a .nii.gz format which will take up less space. Please note this script has blocks of code to both compress (gzip) the .nii files and unzip (gunzip) so just comment out the appropriate one depending on which action you want to perform upon the files.
