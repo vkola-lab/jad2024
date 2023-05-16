@@ -28,7 +28,7 @@ In the folder **construct_ggm**, you will find a script named **create_pop_ggms.
 When running the **create_pop_ggms** you will notice that the brain regions have numerical labels (1-142). To find which numeric labels correspond to which anatomical brain regions, you can refer to the **neuromorphometrics.csv** file which has the information about the regional atlas used to regionally segment the original MRIs. 
 
 ## IV. Analyze Graph Level Metrics 
-In the folder **analyze_graphs** you will find the code required to calculate graph level metrics such as modularity, effiency, etc. for both the pMCI and sMCI graphs and analyze and plot differences between populations. 
+In the folder **analyze_graphs** you will find the code required to calculate graph level metrics such as modularity, effiency, etc. for both the pMCI and sMCI graphs and analyze and plot differences between populations. <br>
 <img width="591" alt="Screen Shot 2023-05-16 at 1 06 49 PM" src="https://github.com/vkola-lab/mci_mri_graph/assets/90205073/89e00133-f66e-4962-9d38-ca9f042612c9">
 
 
