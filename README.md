@@ -29,6 +29,6 @@ When running the **create_pop_ggms** you will notice that the brain regions have
 
 ## IV. Analyze Graph Level Metrics 
 In the folder **analyze_graphs** you will find the code required to calculate graph level metrics such as modularity, effiency, etc. for both the pMCI and sMCI graphs and analyze and plot differences between populations. 
-<img width="595" alt="Screen Shot 2023-05-16 at 1 05 17 PM" src="https://github.com/vkola-lab/mci_mri_graph/assets/90205073/1cbffc0a-a4d4-481b-b641-7df12baeb0b0">
+<img width="591" alt="Screen Shot 2023-05-16 at 1 06 49 PM" src="https://github.com/vkola-lab/mci_mri_graph/assets/90205073/89e00133-f66e-4962-9d38-ca9f042612c9">
 
 
