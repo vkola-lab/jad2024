@@ -9,7 +9,9 @@ for dir in $(find $SEARCH_DIR -maxdepth 1 -type d -name 'NACC[0-9][0-9][0-9][0-9
   echo "zipping files in folder: $dir"
   # Unzip all .nii.gz files in the directory
   for file in $dir/*.nii; do
-    gzip $file
+  # -f force overwrite automatically yes command to overwrite file so it doesn't ask everytime 
+  #be really careful though and double check, only use on redundant files
+    gzip -f $file
   done
 done
 
@@ -34,17 +36,6 @@ done
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 #ADNI zip unzip 
 
 
@@ -66,17 +57,17 @@ done
 
 
 
-#script to compress them
-SEARCH_DIR="/data2/MRI_PET_DATA/graph/ADNI/mri_atlas/roi"
-cd $SEARCH_DIR
+# #script to compress them
+# SEARCH_DIR="/data2/MRI_PET_DATA/graph/ADNI/mri_atlas/roi"
+# cd $SEARCH_DIR
 
-# Use the find command to search for folders that match the pattern
-for dir in $(find $SEARCH_DIR -maxdepth 1 -type d -name 'wneuromorphometrics_[0-9][0-9][0-9][0-9]*' | sort); do
-  echo "zipping files in folder: $dir"
-  # Unzip all .nii.gz files in the directory
-  for file in $dir/*.nii; do
-    gzip $file
-  done
-done
+# # Use the find command to search for folders that match the pattern
+# for dir in $(find $SEARCH_DIR -maxdepth 1 -type d -name 'wneuromorphometrics_[0-9][0-9][0-9][0-9]*' | sort); do
+#   echo "zipping files in folder: $dir"
+#   # Unzip all .nii.gz files in the directory
+#   for file in $dir/*.nii; do
+#     gzip $file
+#   done
+# done
 
 #output will be .gz zipped version 
