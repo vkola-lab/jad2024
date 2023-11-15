@@ -9,4 +9,5 @@ dependencies:
   - networkx=3.1
   - scipy=1.11
   - nibabel=5.1
-  - tqdm=4.66
+  - tqdm
+  - ipykerrnel
