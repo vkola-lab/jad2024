@@ -1,34 +1,42 @@
-# MCI MRI Feature Embedding Generation & Graphical Model Repository 
-In this repository, you will find all the code nessescary to:
-1. Process regionally segmented MRI images into individual regional .nii image files 
-2. Generate feature embeddings of regional .nii images 
-3. Construct a gaussian graphical model of those regions for both progressive and stable MCI populations 
-4. Analyze graph level metrics to determine differences between pMCI and sMCI groups 
+# TAU SUVR Graphical Modeling Project 
+In this repository, you will find all the code nessescary to:  
+1. Clean and harmonize raw data csvs for ADNI and A4 cohorts 
+2. Run Graphical LASSO model on bootstrapped Tau SUVR values 
+3. Analyze graph level metrics to determine differences between global amyloid quartile groups 
 
-## I. MRI Processing Pipeline 
-In the folder **mri_processing** you will find all MRI processing code. <br>
-A. First run **fslmathsloop2.sh**. This script will take MRI images that has been aligned to the Neuromorphometrics regional atlas and generate 142 individual .nii files of each brain region. The resulting files represent a binary mask of that brain region. 
+## I. Data Cleaning  
+A. The raw csv files downloaded from ADNI and A4 are located in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data**
+   1. ADNI raw csv data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/adni** <br>
+   The raw csv with centiloid values is in this folder and named **UCBERKLEY_AMY_6MM_05Oct2023.csv** <br>
+   The raw csv with tau suvr values is in this folder and named **hippo_UCBERKLEY_TAUPVC_6MM_13Nov2023.csv** <br>
+   
+   2. A4 data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/a4** <br>
+    The raw csv with centiloid values is in this folder and named **A4_PETSUVR_15_Aug2023.csv** <br>
+    The raw csv with tau suvr values is in this folder and named **TAUSUVR_15_Aug2023.csv** <br>
+   
 
-![Screenshot 2023-05-09 at 2 26 38 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/3c9227b9-5f42-4be0-a1ac-3e0d8c19ad70)
+B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/data_cleaning_scrips** <br>
 
-B. Next you will need to run **bin_to_sig_mask.ipynb** to obtain the MRI signal intensity for each region. This script multiplies the binary mask by the original MRI image. <br> Note: double check that the original MRI is alinged to the MNI space before running this. You can do so by printing the header information of the MRI and verifying qform: aligned. <br>
-![Screenshot 2023-05-09 at 2 21 36 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/56ee2292-92d4-4620-af33-85bdbabad10a)
+   1. **merging_cent_tau_csvs.ipynb** which merges the centiloid and tau SUVR raw cvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style **merged_adni/a4_at_amy_pos.csv** where adni/a4 is whichever dataset that csv belongs to <br>
+   2. **adni_a4_data_harmonization.ipynb**
+   which narrows down a list of 44 brain region shared across the adni and a4 data <br>
+   4. **creating_quartiles** which creates centiloid quartile groups for adni and a4 and saves them to separate csv files that can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles**
 
-C. The resulting MRI region signal masks will likely take up a lot of storage space in their .nii format. You can run **zip_unzip.sh** in order to compress them into a .nii.gz format which will take up less space. Please note this script has blocks of code to both compress (gzip) the .nii files and unzip (gunzip) so just comment out the appropriate one depending on which action you want to perform upon the files.
-## II. Generate Feature Embeddings of Regional Image Segments 
-In the folder **generate_embeddings** you will find all code required for generating a feature embedding for each .nii brain region image using an encoder neural network. <br>
-![Screenshot 2023-05-09 at 2 09 55 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/5edaf2c5-2330-47bc-b420-6396bf0c86c1)
+C. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group
+The file paths to the input data for the graphical models can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles** :  <br>
+   1. The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
+   2. The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
+
+## II. Construct and Analyze Graphs 
+
+### III. Graphical Modeling Scripts 
+In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
+   1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision matrix and BIC of the graphical model 
+
+   2. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap.ipynb** is a script that takes the final quartile data for both ADNI and A4 and has the outline of code to create X number of bootstrap samples of the data and fit the graphical model to each bootstrapped sample and produce a graph visualization of all of these fitted bootstrapped models (calculated as the average precision matrix across all models). It also contains commented out skeletin code for calculating graph level metrics for each quartile group and then doing a t test to compare across groups. <br>
+
+   3. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap.ipynb** is a similar to the previous script, except it also includes additionaly visualizations of node neighborhoods (nodes with more than one degree connectivity) <br>
 
 
-
-## III. Construct Gaussian Graphical Model for pMCI and sMCI populations 
-In the folder **construct_ggm**, you will find a script named **create_pop_ggms.ipynb** which is the code to construct a gaussian graphical model of pMCI and sMCI populations, where each node represents a (1 region x n patient embeddings) vector containing the embeddings for that brain region across all patients within that population. <br>
-![Screenshot 2023-05-09 at 2 24 10 PM](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/35d09a14-2812-4b0c-88f6-5004f8406ba3)
-
-When running the **create_pop_ggms** you will notice that the brain regions have numerical labels (1-142). To find which numeric labels correspond to which anatomical brain regions, you can refer to the **neuromorphometrics.csv** file which has the information about the regional atlas used to regionally segment the original MRIs. 
-
-## IV. Analyze Graph Level Metrics 
-In the folder **analyze_graphs** you will find the code required to calculate graph level metrics such as modularity, effiency, etc. for both the pMCI and sMCI graphs and analyze and plot differences between populations.
-<br> <img width="591" alt="Screen Shot 2023-05-16 at 1 06 49 PM" src="https://github.com/vkola-lab/mci_mri_graph/assets/90205073/89e00133-f66e-4962-9d38-ca9f042612c9">
 
 
