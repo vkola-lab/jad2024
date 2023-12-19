@@ -24,8 +24,8 @@ B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/d
 
 C. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group
 The file paths to the input data for the graphical models can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles** :  <br>
-The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
-The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
+   1. The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
+   2. The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
 
 ## II. Construct and Analyze Graphs 
 
