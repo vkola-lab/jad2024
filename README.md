@@ -12,9 +12,9 @@ In this repository, you will find all the code nessescary to:
 
 
 ### A. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group
-The file paths to the input data for the graphical models can be found in **mci_mri_graph/Data_paths_and_cleaning/Data** :  
-The ADNI data csv for each centiloid quartile will be in **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**  
-The A4 data csv for each centiloid quartile will be in **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  
+The file paths to the input data for the graphical models can be found in **mci_mri_graph/Data_paths_and_cleaning/Data** :  <br>
+The ADNI data csv for each centiloid quartile will be in **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
+The A4 data csv for each centiloid quartile will be in **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
 ## II. Analyze Graph Level Metrics 
 
 
