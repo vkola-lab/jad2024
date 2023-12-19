@@ -18,7 +18,7 @@ A. The raw csv files downloaded from ADNI and A4 are located in **mci_mri_graph/
 B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/data_cleaning_scrips** <br>
 
    1. **merging_cent_tau_csvs.ipynb** which merges the centiloid and tau SUVR raw cvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style **merged_adni/a4_at_amy_pos.csv** where adni/a4 is whichever dataset that csv belongs to <br>
-   2. **adni_a4_data_harmonization.ipynb** <br>
+   2. **adni_a4_data_harmonization.ipynb**
    which narrows down a list of 44 brain region shared across the adni and a4 data <br>
    4. **creating_quartiles** which creates centiloid quartile groups for adni and a4 and saves them to separate csv files that can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles**
 
