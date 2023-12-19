@@ -1,7 +1,8 @@
 # TAU SUVR Graphical Modeling Project 
 In this repository, you will find all the code nessescary to:  
-1. Run Graphical LASSO model on Tau SUVR values 
-2. Analyze graph level metrics to determine differences between global amyloid quartile groups 
+1. Clean and harmonize raw data csvs for ADNI and A4 cohorts 
+2. Run Graphical LASSO model on bootstrapped Tau SUVR values 
+3. Analyze graph level metrics to determine differences between global amyloid quartile groups 
 
 ## Graphical Model Pipeline 
 
