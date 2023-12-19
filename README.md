@@ -22,13 +22,13 @@ In this repository, you will find all the code nessescary to:
    **adni_a4_data_harmonization.ipynb** which narrows down a list of 44 brain region shared across the adni and a4 data <br>
    **creating_quartiles** which creates centiloid quartile groups for adni and a4 and saves them to separate csv files that can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles**
 
-### II. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group
+#### Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group
 The file paths to the input data for the graphical models can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles** :  <br>
 The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
 The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
-## II. Analyze Graph Level Metrics 
+## II. Construct and Analyze Graphs 
 
-### III. Graphical Modeling Scrips 
+### III. Graphical Modeling Scripts 
 In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
 
 **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision matrix and BIC of the graphical model 
