@@ -22,7 +22,7 @@ B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/d
    which narrows down a list of 44 brain region shared across the adni and a4 data <br>
    4. **creating_quartiles** which creates centiloid quartile groups for adni and a4 and saves them to separate csv files that can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles**
 
-C. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group
+C. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group <br>
 The file paths to the input data for the graphical models can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles** :  <br>
    1. The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
    2. The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
