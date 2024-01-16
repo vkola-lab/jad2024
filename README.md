@@ -29,7 +29,7 @@ The file paths to the input data for the graphical models can be found in **mci_
 
 ## II. Construct and Analyze Graphs 
 
-## III. Graphical Modeling Scripts 
+### A. Graphical Modeling Scripts 
 In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
    1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision matrix and BIC of the graphical model 
 
