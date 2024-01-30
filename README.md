@@ -35,7 +35,7 @@ In this folder you will find scripts to created construct graphical models on th
 
    2. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap.ipynb** is a script that takes the final quartile data for both ADNI and A4 and has the outline of code to create X number of bootstrap samples of the data and fit the graphical model to each bootstrapped sample and produce a graph visualization of all of these fitted bootstrapped models (calculated as the average precision matrix across all models). It also contains commented out skeletin code for calculating graph level metrics for each quartile group and then doing a t test to compare across groups. <br>
 
-   3. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap.ipynb** is a similar to the previous script, except it also includes additionaly visualizations of node neighborhoods (nodes with more than one degree connectivity) <br>
+   3. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap_visualization.ipynb** is a similar to the previous script, except it also includes additionaly visualizations of node neighborhoods (nodes with more than one degree connectivity) <br>
 
 
 
