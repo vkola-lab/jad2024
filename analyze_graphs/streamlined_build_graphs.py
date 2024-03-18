@@ -364,6 +364,64 @@ def __(finite_size, sns):
 
 @app.cell
 def __(mo):
+    mo.md("# Population level metrics")
+    return
+
+
+@app.cell
+def __(a4, adni, demog, pd, plt, sns):
+    # px.histogram(demog,x='',color='Dataset')
+    data_all = (
+        pd.concat([adni, a4], keys=["ADNI", "A4"])
+        .reset_index(level=0)
+        .rename(columns={"level_0": "Dataset"})
+    ).merge(demog[["RID", "PTAGE"]], on="RID")
+
+    sns.histplot(
+        data_all,
+        x="CENTILOIDS",
+        hue="Dataset",
+        alpha=0.3,
+        common_norm=False,
+        stat="density",
+        cumulative=False,
+    )
+    plt.xlabel("Centiloids")
+    return data_all,
+
+
+@app.cell
+def __(mo):
+    mo.md("## Amyloid Quantiles")
+    return
+
+
+@app.cell
+def __(data_all):
+    data_all
+    return
+
+
+@app.cell
+def __(adni_with_demo, pd):
+    n_quantiles = 3
+
+    qlabels, bins = pd.qcut(
+        adni_with_demo["CENTILOIDS"], q=n_quantiles, retbins=True, labels=False
+    )
+
+    bins
+    return bins, n_quantiles, qlabels
+
+
+@app.cell
+def __(adni, qlabels):
+    adni[qlabels == 0]
+    return
+
+
+@app.cell
+def __(mo):
     mo.md(
         """# Graph Metrics
     Note that by default many `nx` functions do not keep into accont edge weights
@@ -375,7 +433,6 @@ def __(mo):
 @app.cell
 def __(nx):
     def small_world_coeff(G):
-        
         G_rand = nx.random_reference(G)
 
         return (
@@ -389,18 +446,22 @@ def __(nx):
 
 
 @app.cell
-def __(compute_metrics, graph, nx, partial, small_world_coeff):
+def __(nx, partial, small_world_coeff):
     metrics = {
         "Efficiency": nx.global_efficiency,  # does not keep into account edge weights
         "Clustering Coefficient": partial(nx.average_clustering, weight="weight"),
         "Average Shortest Path Length": partial(
             nx.average_shortest_path_length, weight="weight"
         ),
-        "Small World": small_world_coeff
+        "Small World": small_world_coeff,
     }
-
-    compute_metrics(graph, metrics)
     return metrics,
+
+
+@app.cell
+def __(compute_metrics, graph, metrics):
+    compute_metrics(graph, metrics)
+    return
 
 
 @app.cell
@@ -411,7 +472,15 @@ def __():
 
 
 @app.cell
-def __(boostrap_graph_metrics, data, metrics):
+def __(
+    adni_with_demo,
+    boostrap_graph_metrics,
+    metrics,
+    mo,
+    n_quantiles,
+    pd,
+    qlabels,
+):
     _params = {
         "alpha": 0.15,
         "max_iter": 1000,
@@ -421,9 +490,39 @@ def __(boostrap_graph_metrics, data, metrics):
         "enet_tol": 1e-7,
     }
 
-    boostrap_graph_metrics(
-        data, _params, metrics, n_samples=10, randomize_graph=False
+    boot_metrics_results = []
+
+    for quantile in mo.status.progress_bar(range(n_quantiles)):
+        boot_metrics_results.append(
+            boostrap_graph_metrics(
+                # data_all[qlabels == quantile].drop(columns=["RID", "CENTILOIDS",'Dataset']).dropna(),
+                adni_with_demo[qlabels == quantile]
+                .drop(columns=["RID", "CENTILOIDS"])
+                .dropna(),
+                _params,
+                metrics,
+                n_samples=128,
+                randomize_graph=False,
+            )
+        )
+
+    graph_metrics_by_quantile = (
+        pd.concat(boot_metrics_results, keys=range(n_quantiles))
+        .reset_index(level=0)
+        .rename(columns={"level_0": "Quantile"})
     )
+    return boot_metrics_results, graph_metrics_by_quantile, quantile
+
+
+@app.cell
+def __(graph_metrics_by_quantile, metrics, plt, sns):
+    _fig, _ax = plt.subplots(1, len(metrics), figsize=(16, 4))
+
+    for _i, _metric in enumerate(metrics):
+        sns.boxplot(graph_metrics_by_quantile, x="Quantile", y=_metric, ax=_ax[_i])
+
+    _fig.tight_layout()
+    plt.show()
     return
 
 
@@ -473,7 +572,9 @@ def __(np):
 
         return (1 / np.abs(pcorr) - 1).replace({np.inf: 0, -np.inf: 0})
 
-        # return (pcorr > 0) * (1 - np.abs(pcorr))
+        # return (pcorr != 0) * (1 - np.abs(pcorr))
+
+        # return -np.log(np.abs(pcorr)).replace({np.inf: 0, -np.inf: 0, np.nan:0})
     return pcorr_to_distance,
 
 
@@ -625,6 +726,12 @@ def __(
 
         return res
     return boostrap_graph_metrics, bootstrap, data_to_metrics
+
+
+@app.cell
+def __(mo):
+    mo.md("## Imports")
+    return
 
 
 @app.cell
