@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.3.2"
+__generated_with = "0.3.3"
 app = marimo.App(width="full")
 
 
@@ -19,14 +19,20 @@ def __(mo):
 @app.cell
 def __(pd):
     # Tau
-    data =  pd.concat( [
-    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
-    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
-    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
-    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
+    adni_high = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
+    adni_med_high = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
+    adni_med_low = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
+    adni_low = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
+
+    adni_all =  pd.concat( [
+        adni_high,
+        adni_med_high,
+        adni_med_low,
+        adni_low
         ],ignore_index=True)
 
-            
+    data = adni_low
+
     # Demographics
     demo_a4 = pd.read_csv(
         "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv"
@@ -39,37 +45,23 @@ def __(pd):
     demog = pd.concat([demo_adni, demo_a4], keys=["ADNI", "A4"]).reset_index(
         level=0, names="Dataset"
     )
-    return data, demo_a4, demo_adni, demog
+    return (
+        adni_all,
+        adni_high,
+        adni_low,
+        adni_med_high,
+        adni_med_low,
+        data,
+        demo_a4,
+        demo_adni,
+        demog,
+    )
 
 
 @app.cell
 def __(data):
-    data.shape
+    data
     return
-
-
-@app.cell
-def __(data):
-    reduced_data = data[
-        [
-            "SUPRAMARGINAL",
-            "AMYGDALA",
-            "MIDDLETEMPORAL",
-            "HIPPOCAMPUS",
-            "ENTORHINAL",
-            "PUTAMEN",
-        ]
-    ]
-
-    # Gaussian test example
-    # mean = np.zeros(3)
-    # cov = np.array([[1,0.5,-0.3],
-    #                 [0.5,1,0.01],
-    #                 [-0.3,0.01,1]])
-    # reduced_data = pd.DataFrame(np.random.multivariate_normal(mean,cov,size=(10000)),columns=['A','B','C'])
-
-    reduced_data.head(5)
-    return reduced_data,
 
 
 @app.cell
@@ -79,9 +71,15 @@ def __(mo):
 
 
 @app.cell
+def __(mo):
+    mo.md("# Generate one graph")
+    return
+
+
+@app.cell
 def __():
     params = {
-        "alpha": 0.8,
+        "alpha": 0.15,
         "max_iter": 1000,
         "tol": 1e-3,
         "mode": "cd",
@@ -100,21 +98,59 @@ def __(mo):
 
 
 @app.cell
-def __(pcorr):
-    pcorr.min().sort_values().head(5)
+def __(alt, pcorr):
+    pcorr_tall = pcorr[(pcorr < 1) & (pcorr != 0)].unstack().dropna().reset_index().rename(columns={0:'Partial Correlation'})
+
+    # _n_samp = 32
+    # pcorr_std = pd.concat([partial_correlation(prec) for prec in bootstrap(adni_high, partial(compute_precision,params=params),n_samples=_n_samp)],keys=range(_n_samp)).groupby(level=1).std().sort_index(axis=1)
+
+    # pcorr_std_tall = pcorr_std.unstack().dropna().reset_index().rename(columns={0:'Stddev'})
+
+    # pcorr_with_std = pd.merge(pcorr_tall,pcorr_std_tall,on=['level_0','level_1'])
+
+    # bar = alt.Chart(pcorr_with_std).mark_errorbar().encode(
+    #     x=alt.X('level_0'),
+    #     y=alt.Y('Partial Correlation'),
+    #     yError='Stddev',
+    #     tooltip=['level_1','Partial Correlation']
+    # )
+
+    # mo.ui.altair_chart(
+    point = alt.Chart(pcorr_tall).mark_point().encode(
+        x=alt.X('level_0').title(''),
+        y=alt.Y('Partial Correlation'),
+        tooltip=['level_1','Partial Correlation'],
+    ).properties(width=2500)
+
+    point
+    # )
+    return pcorr_tall, point
+
+
+@app.cell
+def __(precision, precision_to_graph):
+    G = precision_to_graph(precision)
+
+    G['POSTCENTRAL']
+    return G,
+
+
+@app.cell
+def __(mo):
+    mo.md('All the algorithms only loop over the edges that exist, so it makes sense to mask the partial correlations set to zero before converting to distances.')
     return
 
 
 @app.cell
-def __(compute_precision, data, params, partial_correlation, px):
+def __(adni_high, compute_precision, params, partial_correlation, px):
     precision, covariance = compute_precision(
-        data, params, return_covariance=True
+        adni_high, params, return_covariance=True
     )
 
     pcorr = partial_correlation(precision)
 
     px.imshow(
-        pcorr.round(2),
+        pcorr[pcorr <1].round(2),
         width=500,
         height=500,
         color_continuous_scale="PiYG",
@@ -154,7 +190,7 @@ def __(mo):
 
 @app.cell
 def __(bootstrap, compute_precision, data, mo, np, partial, pd):
-    alphas = np.linspace(0.05, 1, 32)
+    alphas = np.linspace(0.05, 1, 8)
 
     _nz = []
 
@@ -175,7 +211,7 @@ def __(bootstrap, compute_precision, data, mo, np, partial, pd):
         # this is a list, one per bootstrap samples
         _nonzero_counts = np.array(
             list(
-                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=32))
+                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=8))
             )  # about 60s with n = 128
         )
 
@@ -214,7 +250,7 @@ def __():
     return
 
 
-@app.cell
+@app.cell(disabled=True)
 def __(
     alphas,
     compute_metrics,
@@ -230,7 +266,7 @@ def __(
     finite_size = []
 
     for _alpha in mo.status.progress_bar(alphas):
-        
+
         _params = {
             "alpha": _alpha,
             "max_iter": 1000,
@@ -327,6 +363,36 @@ def __(mo):
 
 
 @app.cell
+def __(np):
+    def partial_correlation(precision):
+        """Compute the partial correlation from a given precision matrix"""
+
+        diag = precision.values.diagonal()
+
+        # The - sign is correct, but the diagonal should have 1 instead of -1,
+        # so we fill it explicitly with ones. The formula on wikipedia only applies
+        # to off-diagonal elements
+        partial_correl = -precision.copy() / np.sqrt(diag[:, None] * diag[None, :])
+
+        np.fill_diagonal(partial_correl.values, 1)
+
+        return partial_correl
+    return partial_correlation,
+
+
+@app.cell
+def __(np):
+    def pcorr_to_distance(pcorr):
+        """Compute the distance matrix associated to a given partial correlation
+        matrix: disconnected nodes should stay disconnected, nodes with high
+        correlation should be close to each other. We also drop connections associated with negative weights
+        """
+
+        return (pcorr > 0) * (1 - np.abs(pcorr))
+    return pcorr_to_distance,
+
+
+@app.cell
 def __(
     GraphicalLasso,
     PowerTransformer,
@@ -373,16 +439,16 @@ def __(
 
 
     def compute_partial_correlation(data, params):
-        # convenience function to compute the partial correlation matrix from data
+        """Convenience function to compute the partial correlation matrix from data"""
 
         return partial_correlation(compute_precision(data, params))
     return compute_partial_correlation, compute_precision
 
 
 @app.cell
-def __(np, nx, partial_correlation):
+def __(nx, partial_correlation, pcorr_to_distance):
     # from precision matrix to graph
-    def precision_to_graph(precision, allow_self_connections=False):
+    def precision_to_graph(precision):
         """Convert the provided precision matrix into a networkx graph.
 
         Arguments:
@@ -390,16 +456,9 @@ def __(np, nx, partial_correlation):
         allow_self_connections: bool, if False zero out the diagonal"""
 
         # Adjacency matrix
-        adj = partial_correlation(precision).to_numpy()
+        adj = pcorr_to_distance(partial_correlation(precision))
 
-        if not allow_self_connections:
-            np.fill_diagonal(adj, 0)
-
-        graph = nx.Graph(adj)
-
-        graph = nx.relabel_nodes(
-            graph, dict(zip(graph.nodes, precision.columns.to_list()))
-        )
+        graph = nx.from_pandas_adjacency(adj)
 
         return graph
     return precision_to_graph,
@@ -507,24 +566,6 @@ def __():
 def __():
     import seaborn as sns
     return sns,
-
-
-@app.cell
-def __(np):
-    def partial_correlation(precision):
-        # Compute the partial correlation from the precision matrix
-
-        diag = precision.values.diagonal()
-
-        # The - sign is correct, but the diagonal should have 1 instead of -1,
-        # so we fill it explicitly with ones. The formula on wikipedia only applies
-        # to off-diagonal elements
-        partial_correl = -precision.copy() / np.sqrt(diag[:, None] * diag[None, :])
-
-        np.fill_diagonal(partial_correl.values, 1)
-
-        return partial_correl
-    return partial_correlation,
 
 
 if __name__ == "__main__":
