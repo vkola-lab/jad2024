@@ -19,10 +19,14 @@ def __(mo):
 @app.cell
 def __(pd):
     # Tau
-    data = pd.read_csv(
-        "../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_high_quartile.csv"
-    ).drop(columns=["RID", "CEREBELLUM_CORTEX"])
+    data =  pd.concat( [
+    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
+    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
+    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
+    pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"]),
+        ],ignore_index=True)
 
+            
     # Demographics
     demo_a4 = pd.read_csv(
         "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv"
@@ -40,7 +44,7 @@ def __(pd):
 
 @app.cell
 def __(data):
-    data.head(5)
+    data.shape
     return
 
 
@@ -77,7 +81,7 @@ def __(mo):
 @app.cell
 def __():
     params = {
-        "alpha": 0.5,
+        "alpha": 0.8,
         "max_iter": 1000,
         "tol": 1e-3,
         "mode": "cd",
@@ -90,39 +94,41 @@ def __():
 @app.cell
 def __(mo):
     mo.md(
-        """What is the diagonal of the precision matrix? Is it the (inverse) variance once you condition on everything else? 
-        
-        The partial correlation matrix has the same sparsity as the precision matrix, but is easier to interpret, it has the correlation coefficients between the residuals of each pair of variables once you regressed on all the other ones."""
+        """The partial correlation matrix has the same sparsity as the precision matrix, but is easier to interpret, it has the correlation coefficients between the residuals of each pair of variables once you regressed on all the other ones."""
     )
     return
 
 
 @app.cell
-def __(compute_precision, params, partial_correlation, px, reduced_data):
+def __(pcorr):
+    pcorr.min().sort_values().head(5)
+    return
+
+
+@app.cell
+def __(compute_precision, data, params, partial_correlation, px):
     precision, covariance = compute_precision(
-        reduced_data, params, return_covariance=True
+        data, params, return_covariance=True
     )
 
+    pcorr = partial_correlation(precision)
+
     px.imshow(
-        partial_correlation(precision),
+        pcorr.round(2),
         width=500,
         height=500,
         color_continuous_scale="PiYG",
         color_continuous_midpoint=0,
+        title='Partial Correlation',
+        text_auto=True
     )
-    return covariance, precision
+    return covariance, pcorr, precision
 
 
 @app.cell
-def __():
-    # Do hierarchical clustering based on partial correlation?
-    return
-
-
-@app.cell
-def __(partial_correlation, precision):
-    partial_correlation(precision)
-    return
+def __(precision, precision_to_graph):
+    graph = precision_to_graph(precision)
+    return graph,
 
 
 @app.cell
@@ -134,14 +140,21 @@ def __(mo):
 
 
 @app.cell
+def __(graph, nx, plt):
+    nx.draw_circular(graph, with_labels=True)
+    plt.show()
+    return
+
+
+@app.cell
 def __(mo):
     mo.md("# Sparsity of partial correlation matrix with regularization parameter")
     return
 
 
-@app.cell(disabled=True)
+@app.cell
 def __(bootstrap, compute_precision, data, mo, np, partial, pd):
-    alphas = np.linspace(0.05, 0.5, 16)
+    alphas = np.linspace(0.05, 1, 32)
 
     _nz = []
 
@@ -162,7 +175,7 @@ def __(bootstrap, compute_precision, data, mo, np, partial, pd):
         # this is a list, one per bootstrap samples
         _nonzero_counts = np.array(
             list(
-                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=128))
+                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=32))
             )  # about 60s with n = 128
         )
 
@@ -197,6 +210,63 @@ def __(partial_corr_nz, plt):
 
 @app.cell
 def __():
+    # Subsample correlation of some metric
+    return
+
+
+@app.cell
+def __(
+    alphas,
+    compute_metrics,
+    compute_precision,
+    data,
+    metrics,
+    mo,
+    np,
+    params,
+    pd,
+    precision_to_graph,
+):
+    finite_size = []
+
+    for _alpha in mo.status.progress_bar(alphas):
+        
+        _params = {
+            "alpha": _alpha,
+            "max_iter": 1000,
+            "tol": 1e-3,
+            "mode": "cd",
+            "eps": 1e-12,
+            "enet_tol": 1e-7,
+        }
+
+        for _frac in np.linspace(0.2,1,16):
+            for _ in range(8): # bootstrap samples
+                _sample = data.sample(frac=_frac,replace=True)
+                metrics_dict = compute_metrics(precision_to_graph(compute_precision(_sample,params)),metrics)
+                metrics_dict['N'] = len(_sample)
+                metrics_dict['alpha'] = _alpha
+                finite_size.append(metrics_dict)
+
+    finite_size = pd.DataFrame(finite_size)
+    return finite_size, metrics_dict
+
+
+@app.cell
+def __(finite_size):
+    finite_size
+    return
+
+
+@app.cell
+def __(finite_size, sns):
+    sns.lineplot(data=finite_size.groupby('N').mean(),x='N',y='Efficiency')
+    # sns.lineplot(data=finite_size,x='N',y='Clustering Coefficient')
+    return
+
+
+@app.cell
+def __():
     # add alpha selection sparsity
     return
 
@@ -208,23 +278,10 @@ def __():
 
 
 @app.cell
-def __(precision, precision_to_graph):
-    graph = precision_to_graph(precision)
-    return graph,
-
-
-@app.cell
 def __():
     # make sensible function to draw graph
     # do not draw dots
     # make edges thicker for higher weights
-    return
-
-
-@app.cell
-def __(graph, nx, plt):
-    nx.draw_circular(graph, with_labels=True)
-    plt.show()
     return
 
 
@@ -421,6 +478,8 @@ def __():
     import matplotlib.pyplot as plt
 
     plt.style.use("ggplot")
+
+    pd.set_option('display.max_columns',100)
     return mo, multiprocessing, np, nx, pd, plt
 
 
@@ -442,6 +501,12 @@ def __():
 def __():
     from functools import partial
     return partial,
+
+
+@app.cell
+def __():
+    import seaborn as sns
+    return sns,
 
 
 @app.cell
