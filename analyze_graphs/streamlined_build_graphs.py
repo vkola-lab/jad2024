@@ -5,74 +5,87 @@ app = marimo.App(width="full")
 
 
 @app.cell
-def __():
-    import altair as alt
-    return alt,
-
-
-@app.cell
 def __(mo):
-    mo.md("# Load data")
+    mo.md(
+        """# Load data
+    ## Tau SUVR"""
+    )
     return
 
 
 @app.cell
 def __(pd):
-    # Tau
-    adni_high = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
-    adni_med_high = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_high_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
-    adni_med_low = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_med_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
-    adni_low = pd.read_csv("../data_paths_and_cleaning/data/final_cleaned_quartiles/adni_quartiles/adni_amy_tau_merged_cent_low_quartile.csv").drop(columns=["RID", "CEREBELLUM_CORTEX","CENTILOIDS"])
+    adni = pd.read_csv(
+        "../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv"
+    ).drop(
+        columns=["CEREBELLUM_CORTEX"]
+    )  # still has centiloids and rid
 
-    adni_all =  pd.concat( [
-        adni_high,
-        adni_med_high,
-        adni_med_low,
-        adni_low
-        ],ignore_index=True)
+    a4 = pd.read_csv(
+        "../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv"
+    ).drop(
+        columns=["CEREBELLUM_CORTEX"]
+    )  # still has centiloids and rid
+    return a4, adni
 
-    data = adni_low
 
-    # Demographics
+@app.cell
+def __(adni):
+    adni
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("## Demographics")
+    return
+
+
+@app.cell
+def __(pd):
     demo_a4 = pd.read_csv(
         "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv"
     )
 
     demo_adni = pd.read_csv(
         "../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv"
-    ).rename(columns={"AGE": "PTAGE", "PTRACCAT": "PTRACE"})
+    )
 
     demog = pd.concat([demo_adni, demo_a4], keys=["ADNI", "A4"]).reset_index(
         level=0, names="Dataset"
     )
-    return (
-        adni_all,
-        adni_high,
-        adni_low,
-        adni_med_high,
-        adni_med_low,
-        data,
-        demo_a4,
-        demo_adni,
-        demog,
-    )
+
+    demog
+    return demo_a4, demo_adni, demog
 
 
 @app.cell
-def __(data):
-    data
+def __(demo_adni):
+    demo_adni[demo_adni["PTAGE"].isna()]
     return
 
 
 @app.cell
-def __(mo):
-    mo.md("# Correct tau scores for age and sex")
-    return
+def __(adni, demo_adni, pd):
+    adni_with_demo = pd.merge(adni, demo_adni[["RID", "PTAGE"]], on="RID")
+    return adni_with_demo,
 
 
 @app.cell
 def __(mo):
     mo.md("# Generate one graph")
+    return
+
+
+@app.cell
+def __(adni_with_demo):
+    data = adni_with_demo.drop(columns=["RID", "CENTILOIDS"]).dropna()
+    return data,
+
+
+@app.cell
+def __(data):
+    data
     return
 
 
@@ -90,74 +103,10 @@ def __():
 
 
 @app.cell
-def __(mo):
-    mo.md(
-        """The partial correlation matrix has the same sparsity as the precision matrix, but is easier to interpret, it has the correlation coefficients between the residuals of each pair of variables once you regressed on all the other ones."""
-    )
-    return
-
-
-@app.cell
-def __(alt, pcorr):
-    pcorr_tall = pcorr[(pcorr < 1) & (pcorr != 0)].unstack().dropna().reset_index().rename(columns={0:'Partial Correlation'})
-
-    # _n_samp = 32
-    # pcorr_std = pd.concat([partial_correlation(prec) for prec in bootstrap(adni_high, partial(compute_precision,params=params),n_samples=_n_samp)],keys=range(_n_samp)).groupby(level=1).std().sort_index(axis=1)
-
-    # pcorr_std_tall = pcorr_std.unstack().dropna().reset_index().rename(columns={0:'Stddev'})
-
-    # pcorr_with_std = pd.merge(pcorr_tall,pcorr_std_tall,on=['level_0','level_1'])
-
-    # bar = alt.Chart(pcorr_with_std).mark_errorbar().encode(
-    #     x=alt.X('level_0'),
-    #     y=alt.Y('Partial Correlation'),
-    #     yError='Stddev',
-    #     tooltip=['level_1','Partial Correlation']
-    # )
-
-    # mo.ui.altair_chart(
-    point = alt.Chart(pcorr_tall).mark_point().encode(
-        x=alt.X('level_0').title(''),
-        y=alt.Y('Partial Correlation'),
-        tooltip=['level_1','Partial Correlation'],
-    ).properties(width=2500)
-
-    point
-    # )
-    return pcorr_tall, point
-
-
-@app.cell
-def __(precision, precision_to_graph):
-    G = precision_to_graph(precision)
-
-    G['POSTCENTRAL']
-    return G,
-
-
-@app.cell
-def __(mo):
-    mo.md('All the algorithms only loop over the edges that exist, so it makes sense to mask the partial correlations set to zero before converting to distances.')
-    return
-
-
-@app.cell
-def __(adni_high, compute_precision, params, partial_correlation, px):
-    precision, covariance = compute_precision(
-        adni_high, params, return_covariance=True
-    )
+def __(compute_precision, data, params, partial_correlation):
+    precision, covariance = compute_precision(data, params, return_covariance=True)
 
     pcorr = partial_correlation(precision)
-
-    px.imshow(
-        pcorr[pcorr <1].round(2),
-        width=500,
-        height=500,
-        color_continuous_scale="PiYG",
-        color_continuous_midpoint=0,
-        title='Partial Correlation',
-        text_auto=True
-    )
     return covariance, pcorr, precision
 
 
@@ -170,6 +119,60 @@ def __(precision, precision_to_graph):
 @app.cell
 def __(mo):
     mo.md(
+        """The partial correlation matrix has the same sparsity as the precision matrix, but is easier to interpret, it has the correlation coefficients between the residuals of each pair of variables once you regressed on all the other ones."""
+    )
+    return
+
+
+@app.cell
+def __(alt, mo, pcorr):
+    pcorr_tall = (
+        pcorr[(pcorr < 1) & (pcorr != 0)]
+        .unstack()
+        .dropna()
+        .reset_index()
+        .rename(columns={0: "Partial Correlation"})
+    )
+
+    mo.ui.altair_chart(
+        alt.Chart(pcorr_tall)
+        .mark_point()
+        .encode(
+            x=alt.X("level_0").title(""),
+            y=alt.Y("Partial Correlation"),
+            tooltip=["level_1", "Partial Correlation"],
+        )
+    )
+    return pcorr_tall,
+
+
+@app.cell
+def __(np, pcorr, px):
+    _mask = np.triu(np.ones_like(pcorr, dtype=bool))
+    _pcorr_masked = pcorr.copy()
+    _pcorr_masked[_mask] = np.nan
+
+    _fig = px.imshow(
+        _pcorr_masked.round(2),
+        width=1000,
+        height=1000,
+        color_continuous_scale="PiYG",
+        color_continuous_midpoint=0,
+        title="Partial Correlation",
+        text_auto=True,
+    )
+
+    _fig.update_layout(
+        {
+            "plot_bgcolor": "white",
+        }
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
         "In Dyrba 2020 they use as adjacency matrix 1 - |R| where R is the partial correlation matrix"
     )
     return
@@ -177,8 +180,65 @@ def __(mo):
 
 @app.cell
 def __(graph, nx, plt):
-    nx.draw_circular(graph, with_labels=True)
+    # Extract edge weights
+    edge_weights = [1 / (graph[u][v]["weight"]) for u, v in graph.edges()]
+
+    _fig, _ax = plt.subplots(1, 1, figsize=(16, 16))
+
+    pos = nx.kamada_kawai_layout(graph, weight="weight")
+
+    # Draw nodes
+    # nx.draw_networkx_nodes(graph, pos)
+
+    # Draw edges with thickness inversely proportional to 'weight' attribute
+    nx.draw_networkx_edges(graph, pos, width=edge_weights, ax=_ax)
+
+    # Draw labels
+    nx.draw_networkx_labels(
+        graph, pos, ax=_ax, font_size=10, bbox=dict(facecolor="white", alpha=0.5)
+    )
+
+    # Draw edge labels
+    # edge_labels = nx.get_edge_attributes(graph, 'weight')
+    # nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
+
+    # Display the plot
+    plt.axis("off")
+    _fig.tight_layout()
     plt.show()
+    return edge_weights, pos
+
+
+@app.cell
+def __():
+    # SUPERIORFRONTAL
+    # ROSTRALMIDDLEFRONTAL
+    # CAUDALMIDDLEFRONTAL
+    # PARSOPERCULARIS
+    # PARSTRIANGULARIS
+    # PARSORBITALIS
+    # LATERALORBITOFRONTAL
+    # MEDIALORBITOFRONTAL
+    # PRECENTRAL
+    # POSTCENTRAL
+    # SUPERIORPARIETAL
+    # SUPRAMARGINAL
+    # SUPERIORTEMPORAL
+    # MIDDLETEMPORAL
+    # INFERIORTEMPORAL
+    # BANKSOFTHESUPERIORTEMPORAL
+    # FUSIFORM
+    # TRANSVERSETEMPORAL
+    # ENTORHINAL
+    # TEMPORALPOLE
+    # LATERALOCCIPITAL
+    # LINGUAL
+    # PERICALCARINE
+    # ROSTRALANTERIORCINGULATE
+    # CAUDALANTERIORCINGULATE
+    # POSTERIORCINGULATE
+    # ISTHMUSCINGULATE
+    # INSULA
     return
 
 
@@ -245,8 +305,8 @@ def __(partial_corr_nz, plt):
 
 
 @app.cell
-def __():
-    # Subsample correlation of some metric
+def __(mo):
+    mo.md("# Finite Size Effects")
     return
 
 
@@ -266,7 +326,6 @@ def __(
     finite_size = []
 
     for _alpha in mo.status.progress_bar(alphas):
-
         _params = {
             "alpha": _alpha,
             "max_iter": 1000,
@@ -276,12 +335,14 @@ def __(
             "enet_tol": 1e-7,
         }
 
-        for _frac in np.linspace(0.2,1,16):
-            for _ in range(8): # bootstrap samples
-                _sample = data.sample(frac=_frac,replace=True)
-                metrics_dict = compute_metrics(precision_to_graph(compute_precision(_sample,params)),metrics)
-                metrics_dict['N'] = len(_sample)
-                metrics_dict['alpha'] = _alpha
+        for _frac in np.linspace(0.2, 1, 16):
+            for _ in range(8):  # bootstrap samples
+                _sample = data.sample(frac=_frac, replace=True)
+                metrics_dict = compute_metrics(
+                    precision_to_graph(compute_precision(_sample, params)), metrics
+                )
+                metrics_dict["N"] = len(_sample)
+                metrics_dict["alpha"] = _alpha
                 finite_size.append(metrics_dict)
 
     finite_size = pd.DataFrame(finite_size)
@@ -296,51 +357,73 @@ def __(finite_size):
 
 @app.cell
 def __(finite_size, sns):
-    sns.lineplot(data=finite_size.groupby('N').mean(),x='N',y='Efficiency')
+    sns.lineplot(data=finite_size.groupby("N").mean(), x="N", y="Efficiency")
     # sns.lineplot(data=finite_size,x='N',y='Clustering Coefficient')
     return
 
 
 @app.cell
-def __():
-    # add alpha selection sparsity
-    return
-
-
-@app.cell
-def __():
-    # bic
-    return
-
-
-@app.cell
-def __():
-    # make sensible function to draw graph
-    # do not draw dots
-    # make edges thicker for higher weights
-    return
-
-
-@app.cell
 def __(mo):
-    mo.md("By default the functions in networkx ignore edge weights. Should we threshold the edge weights? Or figure out some way of using the weights?")
+    mo.md(
+        """# Graph Metrics
+    Note that by default many `nx` functions do not keep into accont edge weights
+    """
+    )
     return
 
 
 @app.cell
-def __(compute_metrics, graph, nx):
+def __(nx):
+    def small_world_coeff(G):
+        
+        G_rand = nx.random_reference(G)
+
+        return (
+            nx.average_clustering(G, weight="weight")
+            / nx.average_clustering(G_rand, weight="weight")
+        ) / (
+            nx.average_shortest_path_length(G, weight="weight")
+            / nx.average_shortest_path_length(G_rand, weight="weight")
+        )
+    return small_world_coeff,
+
+
+@app.cell
+def __(compute_metrics, graph, nx, partial, small_world_coeff):
     metrics = {
-        "Efficiency": nx.global_efficiency,
-        "Clustering Coefficient": nx.average_clustering,
+        "Efficiency": nx.global_efficiency,  # does not keep into account edge weights
+        "Clustering Coefficient": partial(nx.average_clustering, weight="weight"),
+        "Average Shortest Path Length": partial(
+            nx.average_shortest_path_length, weight="weight"
+        ),
+        "Small World": small_world_coeff
     }
 
     compute_metrics(graph, metrics)
     return metrics,
 
 
-@app.cell(disabled=True)
-def __(boostrap_graph_metrics, metrics, params, reduced_data):
-    boostrap_graph_metrics(reduced_data, params, metrics, n_samples=4)
+@app.cell
+def __():
+    # average weighted degree
+    # betweenness
+    return
+
+
+@app.cell
+def __(boostrap_graph_metrics, data, metrics):
+    _params = {
+        "alpha": 0.15,
+        "max_iter": 1000,
+        "tol": 1e-3,
+        "mode": "cd",
+        "eps": 1e-12,
+        "enet_tol": 1e-7,
+    }
+
+    boostrap_graph_metrics(
+        data, _params, metrics, n_samples=10, randomize_graph=False
+    )
     return
 
 
@@ -388,7 +471,9 @@ def __(np):
         correlation should be close to each other. We also drop connections associated with negative weights
         """
 
-        return (pcorr > 0) * (1 - np.abs(pcorr))
+        return (1 / np.abs(pcorr) - 1).replace({np.inf: 0, -np.inf: 0})
+
+        # return (pcorr > 0) * (1 - np.abs(pcorr))
     return pcorr_to_distance,
 
 
@@ -460,6 +545,8 @@ def __(nx, partial_correlation, pcorr_to_distance):
 
         graph = nx.from_pandas_adjacency(adj)
 
+        graph.remove_node("PTAGE")
+
         return graph
     return precision_to_graph,
 
@@ -485,18 +572,26 @@ def __(
     compute_metrics,
     compute_precision,
     multiprocessing,
+    nx,
     partial,
     pd,
     precision_to_graph,
 ):
-    def data_to_metrics(data, params, metrics):
+    def data_to_metrics(data, params, metrics, randomize_graph=False):
         # Convenience function, wrapping all steps into one
         precision = compute_precision(data, params=params)
-        graph = precision_to_graph(precision)
+
+        if randomize_graph:
+            graph = nx.random_reference(precision_to_graph(precision))
+        else:
+            graph = precision_to_graph(precision)
+
         return compute_metrics(graph, metrics)
 
 
-    def boostrap_graph_metrics(data, params, metrics, n_samples=8):
+    def boostrap_graph_metrics(
+        data, params, metrics, n_samples=8, randomize_graph=False
+    ):
         """Resample the datframe data, generate graph and compute metrics. Returns a dataframe with the bootstrapped metrics"""
 
         bootstrap_samples = [
@@ -505,7 +600,12 @@ def __(
 
         with multiprocessing.Pool() as pool:
             res = pool.map(
-                partial(data_to_metrics, params=params, metrics=metrics),
+                partial(
+                    data_to_metrics,
+                    params=params,
+                    metrics=metrics,
+                    randomize_graph=randomize_graph,
+                ),
                 bootstrap_samples,
             )
 
@@ -538,7 +638,7 @@ def __():
 
     plt.style.use("ggplot")
 
-    pd.set_option('display.max_columns',100)
+    pd.set_option("display.max_columns", 100)
     return mo, multiprocessing, np, nx, pd, plt
 
 
@@ -566,6 +666,12 @@ def __():
 def __():
     import seaborn as sns
     return sns,
+
+
+@app.cell
+def __():
+    import altair as alt
+    return alt,
 
 
 if __name__ == "__main__":
