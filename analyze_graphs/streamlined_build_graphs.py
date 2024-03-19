@@ -181,21 +181,21 @@ def __(mo):
 @app.cell
 def __(graph, nx, plt):
     # Extract edge weights
-    edge_weights = [1 / (graph[u][v]["weight"]) for u, v in graph.edges()]
+    # edge_weights = [1 / (graph[u][v]["distance"]) for u, v in graph.edges()]
 
     _fig, _ax = plt.subplots(1, 1, figsize=(16, 16))
 
-    pos = nx.kamada_kawai_layout(graph, weight="weight")
+    pos = nx.kamada_kawai_layout(graph,weight=None)
 
     # Draw nodes
     # nx.draw_networkx_nodes(graph, pos)
 
     # Draw edges with thickness inversely proportional to 'weight' attribute
-    nx.draw_networkx_edges(graph, pos, width=edge_weights, ax=_ax)
+    # nx.draw_networkx_edges(graph, pos, width=edge_weights, ax=_ax)
 
     # Draw labels
     nx.draw_networkx_labels(
-        graph, pos, ax=_ax, font_size=10, bbox=dict(facecolor="white", alpha=0.5)
+        graph, pos, ax=_ax, font_size=10, bbox=dict(facecolor="white", alpha=0.7)
     )
 
     # Draw edge labels
@@ -248,7 +248,7 @@ def __(mo):
     return
 
 
-@app.cell
+@app.cell(disabled=True)
 def __(bootstrap, compute_precision, data, mo, np, partial, pd):
     alphas = np.linspace(0.05, 1, 8)
 
@@ -432,28 +432,40 @@ def __(mo):
 
 @app.cell
 def __(nx):
-    def small_world_coeff(G):
-        G_rand = nx.random_reference(G)
+    def small_world_coeff(G, niter=1, nrand=10):
+        """Compute the small world coefficient of a weighted graph. Average over `nrand` samples of the randomized graph."""
+        Crand = 0
+        Lrand = 0
 
-        return (
-            nx.average_clustering(G, weight="weight")
-            / nx.average_clustering(G_rand, weight="weight")
-        ) / (
-            nx.average_shortest_path_length(G, weight="weight")
-            / nx.average_shortest_path_length(G_rand, weight="weight")
-        )
+        for _ in range(nrand):
+            G_rand = nx.random_reference(G,niter)
+
+            Crand += nx.average_clustering(G_rand, weight="weight")
+            Lrand += nx.average_shortest_path_length(G_rand, weight="weight")
+
+        C = nx.average_clustering(G, weight="weight")
+        L = nx.average_shortest_path_length(G, weight="weight")
+
+        return (C / Crand) / (L / Lrand)
     return small_world_coeff,
 
 
 @app.cell
-def __(nx, partial, small_world_coeff):
+def __(nx, partial):
     metrics = {
-        "Efficiency": nx.global_efficiency,  # does not keep into account edge weights
-        "Clustering Coefficient": partial(nx.average_clustering, weight="weight"),
-        "Average Shortest Path Length": partial(
+        # "Efficiency": nx.global_efficiency,  # does not keep into account edge weights
+        # "Small World": partial(nx.sigma, niter=3, nrand=1),
+        "Clustering Coefficient": partial(nx.average_clustering, weight=None),
+        "Avg. Shortest Path Length": partial(
+            nx.average_shortest_path_length, weight=None
+        ),
+        # "Weighted Small World": partial(small_world_coeff,niter=3,nrand=1),
+        "Weighted Clustering Coefficient": partial(
+            nx.average_clustering, weight="weight"
+        ),
+        "Weighted Avg. Shortest Path Length": partial(
             nx.average_shortest_path_length, weight="weight"
         ),
-        "Small World": small_world_coeff,
     }
     return metrics,
 
@@ -501,7 +513,7 @@ def __(
                 .dropna(),
                 _params,
                 metrics,
-                n_samples=128,
+                n_samples=12,
                 randomize_graph=False,
             )
         )
@@ -509,17 +521,34 @@ def __(
     graph_metrics_by_quantile = (
         pd.concat(boot_metrics_results, keys=range(n_quantiles))
         .reset_index(level=0)
-        .rename(columns={"level_0": "Quantile"})
+        .rename(columns={"level_0": "Centiloid Quantile"})
     )
     return boot_metrics_results, graph_metrics_by_quantile, quantile
 
 
 @app.cell
 def __(graph_metrics_by_quantile, metrics, plt, sns):
-    _fig, _ax = plt.subplots(1, len(metrics), figsize=(16, 4))
+    _fig, _ax = plt.subplots(2, len(metrics) // 2, figsize=(10, 6), sharex=True)
 
     for _i, _metric in enumerate(metrics):
-        sns.boxplot(graph_metrics_by_quantile, x="Quantile", y=_metric, ax=_ax[_i])
+        sns.boxplot(
+            graph_metrics_by_quantile, x="Centiloid Quantile", y=_metric, ax=_ax.flat[_i]
+        )
+
+    _fig.tight_layout()
+    plt.show()
+    return
+
+
+@app.cell
+def __(graph_metrics_by_quantile, plt, sns):
+    _fig,_ax = plt.subplots(1,2,figsize=(8,3))
+
+    sns.boxplot(x=graph_metrics_by_quantile['Centiloid Quantile'],y=graph_metrics_by_quantile['Weighted Clustering Coefficient']/graph_metrics_by_quantile['Weighted Avg. Shortest Path Length'],ax=_ax[0])
+    _ax[0].set_ylabel("Wgt. Unref. Small World")
+
+    sns.boxplot(x=graph_metrics_by_quantile['Centiloid Quantile'],y=graph_metrics_by_quantile['Clustering Coefficient']/graph_metrics_by_quantile['Avg. Shortest Path Length'],ax=_ax[1])
+    _ax[1].set_ylabel("Unreferenced Small World")
 
     _fig.tight_layout()
     plt.show()
@@ -570,9 +599,16 @@ def __(np):
         correlation should be close to each other. We also drop connections associated with negative weights
         """
 
-        return (1 / np.abs(pcorr) - 1).replace({np.inf: 0, -np.inf: 0})
+        # return (1 / np.abs(pcorr) - 1).replace({np.inf: 0, -np.inf: 0})
 
-        # return (pcorr != 0) * (1 - np.abs(pcorr))
+        # return (pcorr != 0) * (1 - np.abs(pcorr)) # same as Dyrba 2020, but removing connections set to 0 by lasso
+
+        if pcorr == 0:
+            return 0
+        else:
+            return -np.arctanh(np.abs(pcorr)-1)
+        
+        # return 1 - np.abs(pcorr) # this is what Dyrba 2020 claims to use, but it makes fully connected graphs?
 
         # return -np.log(np.abs(pcorr)).replace({np.inf: 0, -np.inf: 0, np.nan:0})
     return pcorr_to_distance,
@@ -642,11 +678,13 @@ def __(nx, partial_correlation, pcorr_to_distance):
         allow_self_connections: bool, if False zero out the diagonal"""
 
         # Adjacency matrix
-        adj = pcorr_to_distance(partial_correlation(precision))
+        adj = partial_correlation(precision)
 
         graph = nx.from_pandas_adjacency(adj)
 
         graph.remove_node("PTAGE")
+        
+        nx.set_edge_attributes(graph, name='distance', values={(u, v): pcorr_to_distance(weight) for u, v, weight in graph.edges(data='weight')})
 
         return graph
     return precision_to_graph,
