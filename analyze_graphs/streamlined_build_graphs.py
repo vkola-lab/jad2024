@@ -72,6 +72,18 @@ def __(adni, demo_adni, pd):
 
 
 @app.cell
+def __(a4, demo_a4, pd):
+    a4_with_demo = pd.merge(a4, demo_a4[["RID", "PTAGE"]], on="RID")
+    return a4_with_demo,
+
+
+@app.cell
+def __(a4_with_demo):
+    a4_with_demo
+    return
+
+
+@app.cell
 def __(mo):
     mo.md("# Generate one graph")
     return
@@ -181,21 +193,25 @@ def __(mo):
 @app.cell
 def __(graph, nx, plt):
     # Extract edge weights
-    # edge_weights = [1 / (graph[u][v]["distance"]) for u, v in graph.edges()]
+    edge_weights = [graph[u][v]["abs(correlation)"] for u, v in graph.edges()]
 
     _fig, _ax = plt.subplots(1, 1, figsize=(16, 16))
 
-    pos = nx.kamada_kawai_layout(graph,weight=None)
+    pos = nx.spring_layout(graph, weight="abs(correlation)", iterations=1000)
 
     # Draw nodes
     # nx.draw_networkx_nodes(graph, pos)
 
     # Draw edges with thickness inversely proportional to 'weight' attribute
-    # nx.draw_networkx_edges(graph, pos, width=edge_weights, ax=_ax)
+    nx.draw_networkx_edges(graph, pos, width=edge_weights, ax=_ax)
 
     # Draw labels
     nx.draw_networkx_labels(
-        graph, pos, ax=_ax, font_size=10, bbox=dict(facecolor="white", alpha=0.7)
+        graph,
+        pos,
+        ax=_ax,
+        font_size=10,
+        bbox=dict(facecolor="white", alpha=0.9, edgecolor="white"),
     )
 
     # Draw edge labels
@@ -306,7 +322,11 @@ def __(partial_corr_nz, plt):
 
 @app.cell
 def __(mo):
-    mo.md("# Finite Size Effects")
+    mo.md(
+        """# Finite Size Effects
+    How do we know if we have enough data? We should include a training curve
+    """
+    )
     return
 
 
@@ -383,7 +403,7 @@ def __(a4, adni, demog, pd, plt, sns):
         hue="Dataset",
         alpha=0.3,
         common_norm=False,
-        stat="density",
+        # stat="density",
         cumulative=False,
     )
     plt.xlabel("Centiloids")
@@ -406,17 +426,36 @@ def __(data_all):
 def __(adni_with_demo, pd):
     n_quantiles = 3
 
-    qlabels, bins = pd.qcut(
+    adni_quantile_labels, adni_amy_bins = pd.qcut(
         adni_with_demo["CENTILOIDS"], q=n_quantiles, retbins=True, labels=False
     )
 
-    bins
-    return bins, n_quantiles, qlabels
+    adni_amy_bins
+    return adni_amy_bins, adni_quantile_labels, n_quantiles
 
 
 @app.cell
-def __(adni, qlabels):
-    adni[qlabels == 0]
+def __(a4):
+    a4[
+        "CENTILOIDS"
+    ].max()  # this should be less than the adni maximum, which it is
+    return
+
+
+@app.cell
+def __(a4, adni_amy_bins, pd):
+    # cut a4 using the adni quantiles
+    a4_quantile_labels = pd.cut(a4["CENTILOIDS"], adni_amy_bins, labels=False)
+    return a4_quantile_labels,
+
+
+@app.cell
+def __(a4_quantile_labels, adni_quantile_labels, pd):
+    pd.concat(
+        (a4_quantile_labels, adni_quantile_labels), keys=("A4", "ADNI")
+    ).reset_index(level=0).rename(
+        columns={"level_0": "Dataset", "CENTILOIDS": "Centiloid quantile"}
+    ).value_counts().sort_index()
     return
 
 
@@ -431,49 +470,23 @@ def __(mo):
 
 
 @app.cell
-def __(nx):
-    def small_world_coeff(G, niter=1, nrand=10):
-        """Compute the small world coefficient of a weighted graph. Average over `nrand` samples of the randomized graph."""
-        Crand = 0
-        Lrand = 0
-
-        for _ in range(nrand):
-            G_rand = nx.random_reference(G,niter)
-
-            Crand += nx.average_clustering(G_rand, weight="weight")
-            Lrand += nx.average_shortest_path_length(G_rand, weight="weight")
-
-        C = nx.average_clustering(G, weight="weight")
-        L = nx.average_shortest_path_length(G, weight="weight")
-
-        return (C / Crand) / (L / Lrand)
-    return small_world_coeff,
-
-
-@app.cell
-def __(nx, partial):
+def __(nx, partial, small_world_coeff):
     metrics = {
         # "Efficiency": nx.global_efficiency,  # does not keep into account edge weights
-        # "Small World": partial(nx.sigma, niter=3, nrand=1),
-        "Clustering Coefficient": partial(nx.average_clustering, weight=None),
-        "Avg. Shortest Path Length": partial(
-            nx.average_shortest_path_length, weight=None
-        ),
-        # "Weighted Small World": partial(small_world_coeff,niter=3,nrand=1),
+        # "Clustering Coefficient": partial(nx.average_clustering, weight=None),
+        # "Avg. Shortest Path Length": partial(
+        # nx.average_shortest_path_length, weight=None
+        # ),
+        # "Small World": partial(unweighted_small_world_coeff, niter=1, nrand=10),
         "Weighted Clustering Coefficient": partial(
-            nx.average_clustering, weight="weight"
+            nx.average_clustering, weight="correlation"
         ),
         "Weighted Avg. Shortest Path Length": partial(
-            nx.average_shortest_path_length, weight="weight"
+            nx.average_shortest_path_length, weight="distance"
         ),
+        "Weighted Small World": partial(small_world_coeff, niter=1, nrand=10),
     }
     return metrics,
-
-
-@app.cell
-def __(compute_metrics, graph, metrics):
-    compute_metrics(graph, metrics)
-    return
 
 
 @app.cell
@@ -485,13 +498,15 @@ def __():
 
 @app.cell
 def __(
+    a4_quantile_labels,
+    a4_with_demo,
+    adni_quantile_labels,
     adni_with_demo,
     boostrap_graph_metrics,
     metrics,
     mo,
     n_quantiles,
     pd,
-    qlabels,
 ):
     _params = {
         "alpha": 0.15,
@@ -502,68 +517,114 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    boot_metrics_results = []
+    _n_boot = 1000  # 12*24
+
+    adni_boot_metrics_results = []
+    a4_boot_metrics_results = []
 
     for quantile in mo.status.progress_bar(range(n_quantiles)):
-        boot_metrics_results.append(
+        adni_boot_metrics_results.append(
             boostrap_graph_metrics(
-                # data_all[qlabels == quantile].drop(columns=["RID", "CENTILOIDS",'Dataset']).dropna(),
-                adni_with_demo[qlabels == quantile]
+                adni_with_demo[adni_quantile_labels == quantile]
                 .drop(columns=["RID", "CENTILOIDS"])
                 .dropna(),
                 _params,
                 metrics,
-                n_samples=12,
+                n_samples=_n_boot,
+                randomize_graph=False,
+            )
+        )
+
+    for quantile in mo.status.progress_bar(range(n_quantiles)):
+        a4_boot_metrics_results.append(
+            boostrap_graph_metrics(
+                a4_with_demo[a4_quantile_labels == quantile]
+                .drop(columns=["RID", "CENTILOIDS"])
+                .dropna(),
+                _params,
+                metrics,
+                n_samples=_n_boot,
                 randomize_graph=False,
             )
         )
 
     graph_metrics_by_quantile = (
-        pd.concat(boot_metrics_results, keys=range(n_quantiles))
+        pd.concat(
+            [
+                pd.concat(adni_boot_metrics_results, keys=range(n_quantiles))
+                .reset_index(level=0)
+                .rename(columns={"level_0": "Centiloid Quantile"}),
+                pd.concat(a4_boot_metrics_results, keys=range(n_quantiles))
+                .reset_index(level=0)
+                .rename(columns={"level_0": "Centiloid Quantile"}),
+            ],
+            keys=["ADNI", "A4"],
+        )
         .reset_index(level=0)
-        .rename(columns={"level_0": "Centiloid Quantile"})
+        .rename(columns={"level_0": "Dataset"})
     )
-    return boot_metrics_results, graph_metrics_by_quantile, quantile
+    return (
+        a4_boot_metrics_results,
+        adni_boot_metrics_results,
+        graph_metrics_by_quantile,
+        quantile,
+    )
+
+
+@app.cell
+def __():
+    # graph_metrics_by_quantile.to_csv('graph_metrics_adni_a4_bootstrapped_3quant.csv',index=False)
+    return
 
 
 @app.cell
 def __(graph_metrics_by_quantile, metrics, plt, sns):
-    _fig, _ax = plt.subplots(2, len(metrics) // 2, figsize=(10, 6), sharex=True)
+    _fig, _ax = plt.subplots(1, 3, figsize=(12, 4), sharex=True)
 
     for _i, _metric in enumerate(metrics):
         sns.boxplot(
-            graph_metrics_by_quantile, x="Centiloid Quantile", y=_metric, ax=_ax.flat[_i]
+            graph_metrics_by_quantile,
+            x="Centiloid Quantile",
+            y=_metric,
+            hue="Dataset",
+            ax=_ax.flat[_i],
         )
 
     _fig.tight_layout()
-    plt.show()
-    return
-
-
-@app.cell
-def __(graph_metrics_by_quantile, plt, sns):
-    _fig,_ax = plt.subplots(1,2,figsize=(8,3))
-
-    sns.boxplot(x=graph_metrics_by_quantile['Centiloid Quantile'],y=graph_metrics_by_quantile['Weighted Clustering Coefficient']/graph_metrics_by_quantile['Weighted Avg. Shortest Path Length'],ax=_ax[0])
-    _ax[0].set_ylabel("Wgt. Unref. Small World")
-
-    sns.boxplot(x=graph_metrics_by_quantile['Centiloid Quantile'],y=graph_metrics_by_quantile['Clustering Coefficient']/graph_metrics_by_quantile['Avg. Shortest Path Length'],ax=_ax[1])
-    _ax[1].set_ylabel("Unreferenced Small World")
-
-    _fig.tight_layout()
+    _ax[0].legend().set_visible(False)
+    _ax[1].legend().set_visible(False)
     plt.show()
     return
 
 
 @app.cell
 def __():
-    # from graph to random graph
+    # Small world without random graph reference
+    # _fig,_ax = plt.subplots(1,2,figsize=(8,3))
+
+    # sns.boxplot(x=graph_metrics_by_quantile['Centiloid Quantile'],y=graph_metrics_by_quantile['Weighted Clustering Coefficient']/graph_metrics_by_quantile['Weighted Avg. Shortest Path Length'],ax=_ax[0])
+    # _ax[0].set_ylabel("Wgt. Unref. Small World")
+
+    # sns.boxplot(x=graph_metrics_by_quantile['Centiloid Quantile'],y=graph_metrics_by_quantile['Clustering Coefficient']/graph_metrics_by_quantile['Avg. Shortest Path Length'],ax=_ax[1])
+    # _ax[1].set_ylabel("Unreferenced Small World")
+
+    # _fig.tight_layout()
+    # plt.show()
     return
 
 
 @app.cell
-def __():
-    # put together bootstrapped results for different groups/datasets and make a single plot
+def __(mo):
+    mo.md(
+        """# Statistical tests
+    Are the three groups significantly different?"""
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("# Identify important nodes")
     return
 
 
@@ -571,6 +632,43 @@ def __():
 def __(mo):
     mo.md("# Utilities")
     return
+
+
+@app.cell
+def __(nx):
+    def small_world_coeff(G, niter=1, nrand=10):
+        """Compute the small world coefficient of a weighted graph. Average over `nrand` samples of the randomized graph."""
+        Crand = 0
+        Lrand = 0
+
+        for _ in range(nrand):
+            G_rand = nx.random_reference(G, niter)
+
+            Crand += nx.average_clustering(G_rand, weight="correlation")
+            Lrand += nx.average_shortest_path_length(G_rand, weight="distance")
+
+        C = nx.average_clustering(G, weight="correlation")
+        L = nx.average_shortest_path_length(G, weight="distance")
+
+        return (C / Crand) / (L / Lrand)
+
+
+    def unweighted_small_world_coeff(G, niter=1, nrand=10):
+        """Compute the small world coefficient of a weighted graph. Average over `nrand` samples of the randomized graph."""
+        Crand = 0
+        Lrand = 0
+
+        for _ in range(nrand):
+            G_rand = nx.random_reference(G, niter)
+
+            Crand += nx.average_clustering(G_rand)
+            Lrand += nx.average_shortest_path_length(G_rand)
+
+        C = nx.average_clustering(G)
+        L = nx.average_shortest_path_length(G)
+
+        return (C / Crand) / (L / Lrand)
+    return small_world_coeff, unweighted_small_world_coeff
 
 
 @app.cell
@@ -603,11 +701,11 @@ def __(np):
 
         # return (pcorr != 0) * (1 - np.abs(pcorr)) # same as Dyrba 2020, but removing connections set to 0 by lasso
 
-        if pcorr == 0:
+        if pcorr <= 0:
             return 0
         else:
-            return -np.arctanh(np.abs(pcorr)-1)
-        
+            return -np.arctanh(np.abs(pcorr) - 1)
+
         # return 1 - np.abs(pcorr) # this is what Dyrba 2020 claims to use, but it makes fully connected graphs?
 
         # return -np.log(np.abs(pcorr)).replace({np.inf: 0, -np.inf: 0, np.nan:0})
@@ -668,7 +766,7 @@ def __(
 
 
 @app.cell
-def __(nx, partial_correlation, pcorr_to_distance):
+def __(np, nx, partial_correlation, pcorr_to_distance):
     # from precision matrix to graph
     def precision_to_graph(precision):
         """Convert the provided precision matrix into a networkx graph.
@@ -683,8 +781,37 @@ def __(nx, partial_correlation, pcorr_to_distance):
         graph = nx.from_pandas_adjacency(adj)
 
         graph.remove_node("PTAGE")
-        
-        nx.set_edge_attributes(graph, name='distance', values={(u, v): pcorr_to_distance(weight) for u, v, weight in graph.edges(data='weight')})
+
+        # remove self loops
+        graph.remove_edges_from([(u, v) for u, v in graph.edges() if u == v])
+
+        # rename weight to correlation
+        nx.set_edge_attributes(
+            graph,
+            {
+                (u, v): {"correlation": d["weight"]}
+                for u, v, d in graph.edges(data=True)
+            },
+        )
+
+        # convenience: absolute value of correlation
+        nx.set_edge_attributes(
+            graph,
+            {
+                (u, v): {"abs(correlation)": np.abs(d["weight"])}
+                for u, v, d in graph.edges(data=True)
+            },
+        )
+
+        # compute distances from partial correlations
+        nx.set_edge_attributes(
+            graph,
+            name="distance",
+            values={
+                (u, v): pcorr_to_distance(weight)
+                for u, v, weight in graph.edges(data="weight")
+            },
+        )
 
         return graph
     return precision_to_graph,
