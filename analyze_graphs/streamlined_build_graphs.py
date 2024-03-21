@@ -1,38 +1,28 @@
 import marimo
 
 __generated_with = "0.3.3"
-app = marimo.App(width="full")
+app = marimo.App(width="medium")
 
 
 @app.cell
 def __(mo):
-    mo.md(
-        """# Load data
-    ## Tau SUVR"""
+    mo.md("""# Load data
+    ## Tau SUVR
+    ADNI and A4 use two slightly different normalization conventions for computing SUVR, to make them comparable we have to divide all the columns in ADNI by the values in the `cerebellum_cortex` column. We then drop that column, as it is identically 1.
+    """
     )
     return
 
 
 @app.cell
 def __(pd):
-    adni = pd.read_csv(
-        "../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv"
-    ).drop(
-        columns=["CEREBELLUM_CORTEX"]
-    )  # still has centiloids and rid
+    adni = pd.read_csv("../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv",dtype={'RID':str})
 
-    a4 = pd.read_csv(
-        "../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv"
-    ).drop(
-        columns=["CEREBELLUM_CORTEX"]
-    )  # still has centiloids and rid
+    # Normalize all regions by cerebellum cortex
+    adni = pd.concat((adni['RID'],adni.drop(columns=['RID']).div(adni['CEREBELLUM_CORTEX'],axis=0)),axis=1).drop(columns='CEREBELLUM_CORTEX')
+
+    a4 = pd.read_csv("../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv",dtype={'RID':str}).drop(columns='CEREBELLUM_CORTEX')
     return a4, adni
-
-
-@app.cell
-def __(adni):
-    adni
-    return
 
 
 @app.cell
@@ -44,11 +34,11 @@ def __(mo):
 @app.cell
 def __(pd):
     demo_a4 = pd.read_csv(
-        "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv"
+        "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv",dtype={'RID':str}
     )
 
     demo_adni = pd.read_csv(
-        "../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv"
+        "../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv",dtype={'RID':str}
     )
 
     demog = pd.concat([demo_adni, demo_a4], keys=["ADNI", "A4"]).reset_index(
@@ -57,12 +47,6 @@ def __(pd):
 
     demog
     return demo_a4, demo_adni, demog
-
-
-@app.cell
-def __(demo_adni):
-    demo_adni[demo_adni["PTAGE"].isna()]
-    return
 
 
 @app.cell
@@ -79,19 +63,26 @@ def __(a4, demo_a4, pd):
 
 @app.cell
 def __(a4_with_demo):
-    a4_with_demo
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md("# Generate one graph")
+    a4_with_demo.head(3)
     return
 
 
 @app.cell
 def __(adni_with_demo):
-    data = adni_with_demo.drop(columns=["RID", "CENTILOIDS"]).dropna()
+    adni_with_demo.head(3)
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("""# Generate one example graph
+    We keep demographics (e.g. age) as a pseudoregion, so the partial correlations are controlled for age.""")
+    return
+
+
+@app.cell
+def __(adni_with_demo):
+    data = adni_with_demo[adni_with_demo['CENTILOIDS']<54].drop(columns=["RID", "CENTILOIDS"])
     return data,
 
 
@@ -102,8 +93,8 @@ def __(data):
 
 
 @app.cell
-def __():
-    params = {
+def __(compute_precision, data, partial_correlation, precision_to_graph):
+    _params = {
         "alpha": 0.15,
         "max_iter": 1000,
         "tol": 1e-3,
@@ -111,21 +102,13 @@ def __():
         "eps": 1e-12,
         "enet_tol": 1e-7,
     }
-    return params,
 
-
-@app.cell
-def __(compute_precision, data, params, partial_correlation):
-    precision, covariance = compute_precision(data, params, return_covariance=True)
+    precision, covariance = compute_precision(data, _params, return_covariance=True)
 
     pcorr = partial_correlation(precision)
-    return covariance, pcorr, precision
 
-
-@app.cell
-def __(precision, precision_to_graph):
     graph = precision_to_graph(precision)
-    return graph,
+    return covariance, graph, pcorr, precision
 
 
 @app.cell
@@ -152,7 +135,7 @@ def __(alt, mo, pcorr):
         .encode(
             x=alt.X("level_0").title(""),
             y=alt.Y("Partial Correlation"),
-            tooltip=["level_1", "Partial Correlation"],
+            tooltip=["level_0","level_1", "Partial Correlation"],
         )
     )
     return pcorr_tall,
@@ -184,78 +167,46 @@ def __(np, pcorr, px):
 
 @app.cell
 def __(mo):
-    mo.md(
-        "In Dyrba 2020 they use as adjacency matrix 1 - |R| where R is the partial correlation matrix"
-    )
+    mo.md('## Visualize graph')
     return
 
 
 @app.cell
 def __(graph, nx, plt):
-    # Extract edge weights
-    edge_weights = [graph[u][v]["abs(correlation)"] for u, v in graph.edges()]
+    _edge_weights = [1.5*(2.22*graph[u][v]["abs(correlation)"])**2 for u, v in graph.edges()]
 
-    _fig, _ax = plt.subplots(1, 1, figsize=(16, 16))
+    _fig, _ax = plt.subplots(1, 1, figsize=(20,10))
 
-    pos = nx.spring_layout(graph, weight="abs(correlation)", iterations=1000)
+    nx.set_edge_attributes(
+            graph,
+            {
+                (u, v): {"plot_weight": 0.75*(2.22*d["abs(correlation)"])**2}
+                for u, v, d in graph.edges(data=True)
+            },
+        )
 
-    # Draw nodes
-    # nx.draw_networkx_nodes(graph, pos)
+    pos = nx.spectral_layout(graph,weight='distance')
+    # pos = nx.spring_layout(graph, pos=pos,weight="abs(correlation)", iterations=100)
+    pos = nx.spring_layout(graph, pos=pos,weight="plot_weight", iterations=100)
 
-    # Draw edges with thickness inversely proportional to 'weight' attribute
-    nx.draw_networkx_edges(graph, pos, width=edge_weights, ax=_ax)
+    nx.draw_networkx_edges(graph, pos, width=_edge_weights, ax=_ax)
 
-    # Draw labels
     nx.draw_networkx_labels(
         graph,
         pos,
         ax=_ax,
-        font_size=10,
-        bbox=dict(facecolor="white", alpha=0.9, edgecolor="white"),
+        font_size=8,
+        bbox=dict(facecolor="white", alpha=1, edgecolor="white",pad=0),
     )
 
     # Draw edge labels
-    # edge_labels = nx.get_edge_attributes(graph, 'weight')
+    # edge_labels = nx.get_edge_attributes(graph, 'correlation')
     # nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
 
-    # Display the plot
     plt.axis("off")
     _fig.tight_layout()
     plt.show()
-    return edge_weights, pos
-
-
-@app.cell
-def __():
-    # SUPERIORFRONTAL
-    # ROSTRALMIDDLEFRONTAL
-    # CAUDALMIDDLEFRONTAL
-    # PARSOPERCULARIS
-    # PARSTRIANGULARIS
-    # PARSORBITALIS
-    # LATERALORBITOFRONTAL
-    # MEDIALORBITOFRONTAL
-    # PRECENTRAL
-    # POSTCENTRAL
-    # SUPERIORPARIETAL
-    # SUPRAMARGINAL
-    # SUPERIORTEMPORAL
-    # MIDDLETEMPORAL
-    # INFERIORTEMPORAL
-    # BANKSOFTHESUPERIORTEMPORAL
-    # FUSIFORM
-    # TRANSVERSETEMPORAL
-    # ENTORHINAL
-    # TEMPORALPOLE
-    # LATERALOCCIPITAL
-    # LINGUAL
-    # PERICALCARINE
-    # ROSTRALANTERIORCINGULATE
-    # CAUDALANTERIORCINGULATE
-    # POSTERIORCINGULATE
-    # ISTHMUSCINGULATE
-    # INSULA
-    return
+    return pos,
 
 
 @app.cell
@@ -264,9 +215,9 @@ def __(mo):
     return
 
 
-@app.cell(disabled=True)
+@app.cell(hide_code=True)
 def __(bootstrap, compute_precision, data, mo, np, partial, pd):
-    alphas = np.linspace(0.05, 1, 8)
+    alphas = np.linspace(0.05, 1, 16)
 
     _nz = []
 
@@ -316,7 +267,8 @@ def __(partial_corr_nz, plt):
         alpha=0.3,
     )
 
-    plt.title("Fraction of nonzero entries in the partial correlation matrix")
+    plt.xlabel(r'$L_1$ regularization $\alpha$')
+    plt.ylabel("Partial correlation matrix nonzero fraction")
     return
 
 
@@ -417,12 +369,6 @@ def __(mo):
 
 
 @app.cell
-def __(data_all):
-    data_all
-    return
-
-
-@app.cell
 def __(adni_with_demo, pd):
     n_quantiles = 3
 
@@ -517,7 +463,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 1000  # 12*24
+    _n_boot = 16  # 12*24
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
@@ -651,8 +597,11 @@ def __(nx):
         L = nx.average_shortest_path_length(G, weight="distance")
 
         return (C / Crand) / (L / Lrand)
+    return small_world_coeff,
 
 
+@app.cell
+def __(nx):
     def unweighted_small_world_coeff(G, niter=1, nrand=10):
         """Compute the small world coefficient of a weighted graph. Average over `nrand` samples of the randomized graph."""
         Crand = 0
@@ -668,7 +617,7 @@ def __(nx):
         L = nx.average_shortest_path_length(G)
 
         return (C / Crand) / (L / Lrand)
-    return small_world_coeff, unweighted_small_world_coeff
+    return unweighted_small_world_coeff,
 
 
 @app.cell
@@ -713,13 +662,7 @@ def __(np):
 
 
 @app.cell
-def __(
-    GraphicalLasso,
-    PowerTransformer,
-    make_pipeline,
-    partial_correlation,
-    pd,
-):
+def __(GraphicalLasso, PowerTransformer, make_pipeline, pd):
     def compute_precision(data, params, return_covariance=False):
         """Takes a dataframe and computes the precision matrix via sklearn.covariance.GraphicalLasso. The data is first transformed via PowerTransformer to ensure normality.
 
@@ -756,13 +699,16 @@ def __(
                 index=labels,
                 columns=labels,
             )
+    return compute_precision,
 
 
+@app.cell
+def __(compute_precision, partial_correlation):
     def compute_partial_correlation(data, params):
         """Convenience function to compute the partial correlation matrix from data"""
 
         return partial_correlation(compute_precision(data, params))
-    return compute_partial_correlation, compute_precision
+    return compute_partial_correlation,
 
 
 @app.cell
@@ -834,15 +780,7 @@ def __():
 
 
 @app.cell
-def __(
-    compute_metrics,
-    compute_precision,
-    multiprocessing,
-    nx,
-    partial,
-    pd,
-    precision_to_graph,
-):
+def __(compute_metrics, compute_precision, nx, precision_to_graph):
     def data_to_metrics(data, params, metrics, randomize_graph=False):
         # Convenience function, wrapping all steps into one
         precision = compute_precision(data, params=params)
@@ -853,8 +791,11 @@ def __(
             graph = precision_to_graph(precision)
 
         return compute_metrics(graph, metrics)
+    return data_to_metrics,
 
 
+@app.cell
+def __(data_to_metrics, multiprocessing, partial, pd):
     def boostrap_graph_metrics(
         data, params, metrics, n_samples=8, randomize_graph=False
     ):
@@ -876,8 +817,11 @@ def __(
             )
 
         return pd.DataFrame(res)
+    return boostrap_graph_metrics,
 
 
+@app.cell
+def __(multiprocessing):
     def bootstrap(data, func, n_samples=8):
         # Resample from data and apply fun to each sample
         # use this version for general functions rather than graph metrics
@@ -890,7 +834,7 @@ def __(
             res = pool.map(func, bootstrap_samples)
 
         return res
-    return boostrap_graph_metrics, bootstrap, data_to_metrics
+    return bootstrap,
 
 
 @app.cell
@@ -907,11 +851,17 @@ def __():
     import multiprocessing
     import numpy as np
     import matplotlib.pyplot as plt
+    import plotly.express as px
+    import altair as alt
+
+    from functools import partial
+
+    import seaborn as sns
 
     plt.style.use("ggplot")
 
     pd.set_option("display.max_columns", 100)
-    return mo, multiprocessing, np, nx, pd, plt
+    return alt, mo, multiprocessing, np, nx, partial, pd, plt, px, sns
 
 
 @app.cell
@@ -920,30 +870,6 @@ def __():
     from sklearn.covariance import GraphicalLasso
     from sklearn.pipeline import make_pipeline
     return GraphicalLasso, PowerTransformer, make_pipeline
-
-
-@app.cell
-def __():
-    import plotly.express as px
-    return px,
-
-
-@app.cell
-def __():
-    from functools import partial
-    return partial,
-
-
-@app.cell
-def __():
-    import seaborn as sns
-    return sns,
-
-
-@app.cell
-def __():
-    import altair as alt
-    return alt,
 
 
 if __name__ == "__main__":
