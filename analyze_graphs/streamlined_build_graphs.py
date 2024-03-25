@@ -6,7 +6,8 @@ app = marimo.App(width="medium")
 
 @app.cell
 def __(mo):
-    mo.md("""# Load data
+    mo.md(
+        """# Load data
     ## Tau SUVR
     ADNI and A4 use two slightly different normalization conventions for computing SUVR, to make them comparable we have to divide all the columns in ADNI by the values in the `cerebellum_cortex` column. We then drop that column, as it is identically 1.
     """
@@ -16,13 +17,34 @@ def __(mo):
 
 @app.cell
 def __(pd):
-    adni = pd.read_csv("../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv",dtype={'RID':str})
+    adni = pd.read_csv(
+        "../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv",
+        dtype={"RID": str},
+    )
 
     # Normalize all regions by cerebellum cortex
-    adni = pd.concat((adni['RID'],adni.drop(columns=['RID']).div(adni['CEREBELLUM_CORTEX'],axis=0)),axis=1).drop(columns='CEREBELLUM_CORTEX')
+    adni = pd.concat(
+        (
+            adni[["RID", "CENTILOIDS"]],
+            adni.drop(columns=["RID", "CENTILOIDS"]).div(
+                adni["CEREBELLUM_CORTEX"], axis=0
+            ),
+        ),
+        axis=1,
+    ).drop(columns="CEREBELLUM_CORTEX")
 
-    a4 = pd.read_csv("../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv",dtype={'RID':str}).drop(columns='CEREBELLUM_CORTEX')
+    a4 = pd.read_csv(
+        "../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv",
+        dtype={"RID": str},
+    ).drop(columns="CEREBELLUM_CORTEX")
     return a4, adni
+
+
+@app.cell(disabled=True)
+def __(a4, adni):
+    adni.to_csv("adni_normalized.csv", index=False)
+    a4.to_csv("a4_normalized.csv", index=False)
+    return
 
 
 @app.cell
@@ -34,11 +56,13 @@ def __(mo):
 @app.cell
 def __(pd):
     demo_a4 = pd.read_csv(
-        "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv",dtype={'RID':str}
+        "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv",
+        dtype={"RID": str},
     )
 
     demo_adni = pd.read_csv(
-        "../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv",dtype={'RID':str}
+        "../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv",
+        dtype={"RID": str},
     )
 
     demog = pd.concat([demo_adni, demo_a4], keys=["ADNI", "A4"]).reset_index(
@@ -75,14 +99,18 @@ def __(adni_with_demo):
 
 @app.cell
 def __(mo):
-    mo.md("""# Generate one example graph
-    We keep demographics (e.g. age) as a pseudoregion, so the partial correlations are controlled for age.""")
+    mo.md(
+        """# Generate one example graph
+    We keep demographics (e.g. age) as a pseudoregion, so the partial correlations are controlled for age."""
+    )
     return
 
 
 @app.cell
 def __(adni_with_demo):
-    data = adni_with_demo[adni_with_demo['CENTILOIDS']<54].drop(columns=["RID", "CENTILOIDS"])
+    data = adni_with_demo[adni_with_demo["CENTILOIDS"] > 54].drop(
+        columns=["RID", "CENTILOIDS"]
+    )
     return data,
 
 
@@ -103,7 +131,9 @@ def __(compute_precision, data, partial_correlation, precision_to_graph):
         "enet_tol": 1e-7,
     }
 
-    precision, covariance = compute_precision(data, _params, return_covariance=True)
+    precision, covariance = compute_precision(
+        data, _params, return_covariance=True
+    )
 
     pcorr = partial_correlation(precision)
 
@@ -135,7 +165,7 @@ def __(alt, mo, pcorr):
         .encode(
             x=alt.X("level_0").title(""),
             y=alt.Y("Partial Correlation"),
-            tooltip=["level_0","level_1", "Partial Correlation"],
+            tooltip=["level_0", "level_1", "Partial Correlation"],
         )
     )
     return pcorr_tall,
@@ -167,27 +197,30 @@ def __(np, pcorr, px):
 
 @app.cell
 def __(mo):
-    mo.md('## Visualize graph')
+    mo.md("## Visualize graph")
     return
 
 
 @app.cell
 def __(graph, nx, plt):
-    _edge_weights = [1.5*(2.22*graph[u][v]["abs(correlation)"])**2 for u, v in graph.edges()]
+    _edge_weights = [
+        1.5 * (2.22 * graph[u][v]["abs(correlation)"]) ** 2
+        for u, v in graph.edges()
+    ]
 
-    _fig, _ax = plt.subplots(1, 1, figsize=(20,10))
+    _fig, _ax = plt.subplots(1, 1, figsize=(20, 10))
 
     nx.set_edge_attributes(
-            graph,
-            {
-                (u, v): {"plot_weight": 0.75*(2.22*d["abs(correlation)"])**2}
-                for u, v, d in graph.edges(data=True)
-            },
-        )
+        graph,
+        {
+            (u, v): {"plot_weight": 0.75 * (2.22 * d["abs(correlation)"]) ** 2}
+            for u, v, d in graph.edges(data=True)
+        },
+    )
 
-    pos = nx.spectral_layout(graph,weight='distance')
+    pos = nx.spectral_layout(graph, weight="distance")
     # pos = nx.spring_layout(graph, pos=pos,weight="abs(correlation)", iterations=100)
-    pos = nx.spring_layout(graph, pos=pos,weight="plot_weight", iterations=100)
+    pos = nx.spring_layout(graph, pos=pos, weight="plot_weight", iterations=100)
 
     nx.draw_networkx_edges(graph, pos, width=_edge_weights, ax=_ax)
 
@@ -196,7 +229,7 @@ def __(graph, nx, plt):
         pos,
         ax=_ax,
         font_size=8,
-        bbox=dict(facecolor="white", alpha=1, edgecolor="white",pad=0),
+        bbox=dict(facecolor="white", alpha=1, edgecolor="white", pad=0),
     )
 
     # Draw edge labels
@@ -267,7 +300,7 @@ def __(partial_corr_nz, plt):
         alpha=0.3,
     )
 
-    plt.xlabel(r'$L_1$ regularization $\alpha$')
+    plt.xlabel(r"$L_1$ regularization $\alpha$")
     plt.ylabel("Partial correlation matrix nonzero fraction")
     return
 
@@ -463,7 +496,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 16  # 12*24
+    _n_boot = 1000
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
