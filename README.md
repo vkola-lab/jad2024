@@ -28,7 +28,7 @@ The file paths to the input data for the graphical models can be found in **mci_
    1. The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
    2. The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
 
-## II. Construct and Analyze Graphs 
+## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
 
 ### Graphical Modeling Scripts 
 In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
