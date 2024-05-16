@@ -33,7 +33,7 @@ In this folder you will find scripts to created construct graphical models on th
    2. 
 
    3. **mci_mri_graph/analyze_graphs/streamlined_graphs_centiloid_range.ipynb** is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens. 
-   4. **mci_mri_graph/analyze_graphs/sig_testing.ipynb** is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (appropriate significance tests were determined by running ****mci_mri_graph/analyze_graphs/metrics_dis_checker**)
+   4. **mci_mri_graph/analyze_graphs/sig_testing.ipynb** is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (appropriate significance tests were determined by running **mci_mri_graph/analyze_graphs/metrics_dis_checker**)
 
    6. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap_visualization.ipynb** is a similar to the previous script, except it also includes additionaly visualizations of node neighborhoods (nodes with more than one degree connectivity) <br>
 
