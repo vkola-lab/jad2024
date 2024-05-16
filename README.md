@@ -1,5 +1,4 @@
 # TAU SUVR Graphical Modeling Project 
-![graphical_lasso_schematic copy](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/8f7f1a62-f1b1-44a5-adc1-8f37ea162a7f)
 
 In this repository, you will find all the code nessescary to:  
 1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
