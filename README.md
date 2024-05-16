@@ -1,11 +1,17 @@
 # TAU SUVR Graphical Modeling Project 
+
+[graphical_lasso_schematic.pdf](https://github.com/vkola-lab/mci_mri_graph/files/15336612/graphical_lasso_schematic.pdf)
+
+
+
+
 In this repository, you will find all the code nessescary to:  
-1. Clean and harmonize raw data csvs for ADNI and A4 cohorts 
-2. Run Graphical LASSO model on bootstrapped Tau SUVR values 
-3. Analyze graph level metrics to determine differences between global amyloid quartile groups 
+1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
+2. Run graphical machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker associations,  
+3. Analyze graph level metrics to determine differences in efficiency and organization of tau deposition at varying amyloid burdens.   
 
 ## I. Data Cleaning  
-A. The raw csv files downloaded from ADNI and A4 are located in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data**
+A. The tau and amyloid PET from ADNI and A4 are located in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data**
    1. ADNI raw csv data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/adni** <br>
    The raw csv with centiloid values is in this folder and named **UCBERKLEY_AMY_6MM_05Oct2023.csv** <br>
    The raw csv with tau suvr values is in this folder and named **hippo_UCBERKLEY_TAUPVC_6MM_13Nov2023.csv** <br>
@@ -13,11 +19,13 @@ A. The raw csv files downloaded from ADNI and A4 are located in **mci_mri_graph/
    2. A4 data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/a4** <br>
     The raw csv with centiloid values is in this folder and named **A4_PETSUVR_15_Aug2023.csv** <br>
     The raw csv with tau suvr values is in this folder and named **TAUSUVR_15_Aug2023.csv** <br>
+
+    This data can be optained from the ADNI and A4 websites: 
    
 
 B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/data_cleaning_scrips** <br>
 
-   1. **merging_cent_tau_csvs.ipynb** which merges the centiloid and tau SUVR raw cvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style **merged_adni/a4_at_amy_pos.csv** where adni/a4 is whichever dataset that csv belongs to <br>
+   1. **merging_cent_tau_csvs.ipynb** which merges the centiloid and tau SUVR raw csvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style **merged_adni/a4_at_amy_pos.csv** where adni/a4 is whichever dataset that csv belongs to <br>
    2. **adni_a4_data_harmonization.ipynb**
    which narrows down a list of 44 brain region shared across the adni and a4 data <br>
    4. **creating_quartiles** which creates centiloid quartile groups for adni and a4 and saves them to separate csv files that can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles**
