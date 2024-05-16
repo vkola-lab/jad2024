@@ -30,7 +30,9 @@ The file paths to the input data for the graphical models can be found in **mci_
 ### Graphical Modeling Scripts 
 In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
    1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision matrix and BIC of the graphical model used to determine the optimal strength of the L1 regularization to apply to the model. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Optimal alpha ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
-    
+    <div style="text-align:center;">
+    <img src="non_zero_frac_bic-1.png" alt="Screenshot">
+</div>
       
    3. 
 
