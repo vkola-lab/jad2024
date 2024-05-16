@@ -11,7 +11,7 @@ In this repository, you will find all the code necessary to:
 3. Analyze graph level metrics to determine differences in efficiency and organization of tau deposition at varying amyloid burdens.   
 
 ## I. Data Cleaning  
-Data can be obtained from [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites upon request. 
+Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. 
 <div style="text-align:center;">
     <img src="Participant Selection Process (1)-1.png" alt="Screenshot">
 </div>
