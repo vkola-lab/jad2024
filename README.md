@@ -40,12 +40,12 @@ In this folder you will find scripts to created construct graphical models on th
 
    4. **mci_mri_graph/analyze_graphs/streamlined_graphs_centiloid_range.ipynb** is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
-    <div style="text-align:center;">
+<div style="text-align:center;">
     <img src="graph_metrics_boxplot.png" alt="Screenshot">
 </div>
 
 
-    <div style="text-align:center;">
+<div style="text-align:center;">
     <img src="graph_comp.png" alt="Screenshot">
 </div>
 
