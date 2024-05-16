@@ -1,6 +1,6 @@
-# TAU SUVR Graphical Modeling Project 
+# Global Amyloid Burden Enhances Network Efficiency of Tau Propogation in the Brain
 <div style="text-align:center;">
-![Screenshot](graphical_lasso_schematic-1.png)
+    <img src="graphical_lasso_schematic-1.png" alt="Screenshot">
 </div>
 
 In this repository, you will find all the code nessescary to:  
