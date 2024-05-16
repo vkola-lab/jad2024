@@ -20,8 +20,10 @@ A. The tau and amyloid PET from ADNI and A4 are located in **mci_mri_graph/data_
     The raw csv with centiloid values is in this folder and named **A4_PETSUVR_15_Aug2023.csv** <br>
     The raw csv with tau suvr values is in this folder and named **TAUSUVR_15_Aug2023.csv** <br>
 
-    This data can be optained from the ADNI and A4 websites: 
-   
+    This data can be optained from the ADNI (https://adni.loni.
+396	usc.edu/ 
+![image](https://github.com/vkola-lab/mci_mri_graph/assets/90205073/4043063c-027b-4470-a202-ac24ed370fad)
+)   
 
 B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/data_cleaning_scrips** <br>
 
