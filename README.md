@@ -11,6 +11,8 @@ In this repository, you will find all the code nessescary to:
 3. Analyze graph level metrics to determine differences in efficiency and organization of tau deposition at varying amyloid burdens.   
 
 ## I. Data Cleaning  
+Data can be obtained from [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites upon request. 
+
 A. The tau and amyloid PET from ADNI and A4 are located in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data**
    1. ADNI raw csv data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/adni** <br>
    The raw csv with centiloid values is in this folder and named **UCBERKLEY_AMY_6MM_05Oct2023.csv** <br>
