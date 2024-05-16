@@ -12,6 +12,9 @@ In this repository, you will find all the code necessary to:
 
 ## I. Data Cleaning  
 Data can be obtained from [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites upon request. 
+<div style="text-align:center;">
+    <img src="Participant Selection Process (1)-1.png" alt="Screenshot">
+</div>
    
 B. Data cleaning scripts are located in **mci_mri_graph/data_paths_and_cleaning/data_cleaning_scrips** <br>
 
@@ -29,15 +32,26 @@ The file paths to the input data for the graphical models can be found in **mci_
 
 ### Graphical Modeling Scripts 
 In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
-   1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision matrix and BIC of the graphical model used to determine the optimal strength of the L1 regularization to apply to the model. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Optimal alpha ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
+   1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization applied to the model. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Choosing an optimal alpha value ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
     <div style="text-align:center;">
     <img src="nonzero_frac_bic-1.png" alt="Screenshot">
 </div>
-      
-   3. 
+     
 
-   4. **mci_mri_graph/analyze_graphs/streamlined_graphs_centiloid_range.ipynb** is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens. 
-   5. **mci_mri_graph/analyze_graphs/sig_testing.ipynb** is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (appropriate significance tests were determined by running **mci_mri_graph/analyze_graphs/metrics_dis_checker.ipynb**)
+   4. **mci_mri_graph/analyze_graphs/streamlined_graphs_centiloid_range.ipynb** is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
+
+    <div style="text-align:center;">
+    <img src="graph_metrics_boxplot.png" alt="Screenshot">
+</div>
+
+
+    <div style="text-align:center;">
+    <img src="graph_comp.png" alt="Screenshot">
+</div>
+
+
+
+   6. **mci_mri_graph/analyze_graphs/sig_testing.ipynb** is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (appropriate significance tests were determined by running **mci_mri_graph/analyze_graphs/metrics_dis_checker.ipynb**)
 
 
 
