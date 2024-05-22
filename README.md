@@ -22,22 +22,15 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
    2. [adni_a4_data_harmonization.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/adni_a4_data_harmonization.ipynb)
    which narrows down a list of 44 brain region shared across the ADNI and A4 data and saves them to [jad2024/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv) where a4/adni is the parent folder name for the csv depending ion whichever cohort that data belongs to. <br>
 
-C. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group <br>
-The file paths to the input data for the graphical models can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles** :  <br>
-   1. The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
-   2. The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
-
 ## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
 
 ### Graphical Modeling Scripts 
-In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
-   1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization applied to the model. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Choosing an optimal alpha value ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
+In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs) you will find scripts for hyperparamter selection and running the graphical models on the data that has been divided into 2 centiloid quartile groups <br> 
+   1. [jad2024/anaqlyze_graphs/hyperparamter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb) is a script to show how different alpha values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization applied to the model. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Choosing an optimal alpha value ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
     <div style="text-align:center;">
     <img src="nonzero_frac_bic-1.png" alt="Screenshot">
 </div>
-     
-
-   2. **mci_mri_graph/analyze_graphs/streamlined_graphs_centiloid_range.ipynb** is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
+2. [jad2024/anaqlyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
 <div style="text-align:center;">
     <img src="graph_metrics_boxplot.png" alt="Screenshot">
@@ -49,8 +42,7 @@ In this folder you will find scripts to created construct graphical models on th
 </div>
 
 
-
-   3. **mci_mri_graph/analyze_graphs/sig_testing.ipynb** is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (appropriate significance tests were determined by running **mci_mri_graph/analyze_graphs/metrics_dis_checker.ipynb**)
+3. [jad2024/anaqlyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb)is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (appropriate significance tests were determined by running [jad2024/anaqlyze_graphs/hyperparamter_tuning/metrics_dis_checker.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/metrics_dis_checker.ipynb) to plot the distribution of each graph metric to choose the most approriate statistical test to apply to analyze differences across centiloid groups.)
 
 
 
