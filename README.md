@@ -15,7 +15,7 @@ In this repository, you will find all the code necessary to:
 A. Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. <br> 
         1. A list of de-identified subject IDs of the ADNI participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) <br> 
         2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv) <br>
-        <div style="text-align:center;> 
+<div style="text-align:center;> 
     <img src="/readme_photos/Participant Selection Process.png" alt="Screenshot">
 </div>
    
