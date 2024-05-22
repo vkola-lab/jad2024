@@ -13,7 +13,7 @@ In this repository, you will find all the code necessary to:
 ## I. Data Cleaning  
 Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. 
 <div style="text-align:center;">
-    <img src="Participant Selection Process (1)-1.png" alt="Screenshot">
+    <img src="/readme_photos/Participant Selection Process (1)-1.png" alt="Screenshot">
 </div>
    
 B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cleaning_scripts](https://github.com/vkola-lab/jad2024/tree/main/data_paths_and_cleaning/data_cleaning_scripts) <br>
