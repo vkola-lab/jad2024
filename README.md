@@ -12,7 +12,7 @@ In this repository, you will find all the code necessary to:
 3. Analyze graph metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
 
 ## I. Data Cleaning  
-A. Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. 
+A. Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. <br> 
     1. A list of de-identified subject IDs of the ADNI participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) 
     2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv)
     <img src="/readme_photos/Participant Selection Process.png" alt="Screenshot">
