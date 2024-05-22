@@ -1,4 +1,5 @@
 # Global Amyloid Burden Enhances Network Efficiency of Tau Propogation in the Brain
+<br></br>
 <div style="text-align:center;">
     <img src="/readme_photos/graphical_lasso_schematic.png" alt="Screenshot">
 </div>
