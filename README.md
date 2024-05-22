@@ -26,16 +26,6 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
    2. [adni_a4_data_harmonization.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/adni_a4_data_harmonization.ipynb)
    which narrows down a list of 44 brain region shared across the ADNI and A4 data and saves them to [jad2024/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv) where a4/adni is the parent folder name for the csv depending ion whichever cohort that data belongs to. <br>
 
-   A. Researchers can request the data used in this project from the <a href="https://adni.loni.usc.edu/data-samples/access-data/">ADNI</a> and <a href="https://a4study.org/">A4</a> websites. <br>
-<ol>
-    <li>
-        A list of de-identified subject IDs of the ADNI participants used in this project are located in <a href="https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv">jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv</a> <br>
-    </li>
-    <li>
-        A list of de-identified subject IDs for the A4 participants used in this project are located in <a href="https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv">jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv</a> <br>
-    </li>
-</ol>
-
 
 ## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
 
