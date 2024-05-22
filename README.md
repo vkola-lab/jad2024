@@ -1,4 +1,4 @@
-# Global Amyloid Burden Enhances Network Efficiency of Tau Propogation in the Brain
+# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propogation in the Brain
 <br></br>
 <div style="text-align:center;">
     <img src="/readme_photos/graphical_lasso_schematic.png" alt="Screenshot">
@@ -9,10 +9,10 @@
 In this repository, you will find all the code necessary to:  
 1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
 2. Run graphical machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker spurious associations.  
-3. Analyze graph level metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
+3. Analyze graph metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
 
 ## I. Data Cleaning  
-Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. 
+Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. A list of de-indetified subject IDs for the participants used in this project are located for the ADNI cohort in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) and for the A4 cohort in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv)
 <div style="text-align:center;">
     <img src="/readme_photos/Participant Selection Process.png" alt="Screenshot">
 </div>
