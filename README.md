@@ -35,7 +35,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
     <div style="text-align:center;">
     <img src="/readme_photos/nonzero_frac_bic.png" alt="Screenshot">
 </div>
-2. [jad2024/anaqlyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
+2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
 <div style="text-align:center;">
     <img src="/readme_photos/graph_metrics_boxplot.png" alt="Screenshot">
