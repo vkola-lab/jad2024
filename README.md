@@ -7,8 +7,8 @@
 
 In this repository, you will find all the code necessary to:  
 1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
-2. Run graphical machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker associations,  
-3. Analyze graph level metrics to determine differences in efficiency and organization of tau deposition at varying amyloid burdens.   
+2. Run graphical machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker spurious associations.  
+3. Analyze graph level metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
 
 ## I. Data Cleaning  
 Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. 
