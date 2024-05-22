@@ -12,6 +12,20 @@ In this repository, you will find all the code necessary to:
 3. Analyze graph metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
 
 ## I. Data Cleaning  
+
+   A. Researchers can request the data used in this project from the <a href="https://adni.loni.usc.edu/data-samples/access-data/">ADNI</a> and <a href="https://a4study.org/">A4</a> websites. <br>
+<ol>
+    <li>
+        A list of de-identified subject IDs of the ADNI participants used in this project are located in <a href="https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv">jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv</a> <br>
+    </li>
+    <li>
+        A list of de-identified subject IDs for the A4 participants used in this project are located in <a href="https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv">jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv</a> <br>
+    </li>
+</ol>
+
+
+
+
 A. Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. <br> 
 1. A list of de-identified subject IDs of the ADNI participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) <br> 
         2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv) <br>
