@@ -1,41 +1,55 @@
-# TAU SUVR Graphical Modeling Project 
-In this repository, you will find all the code nessescary to:  
-1. Clean and harmonize raw data csvs for ADNI and A4 cohorts 
-2. Run Graphical LASSO model on bootstrapped Tau SUVR values 
-3. Analyze graph level metrics to determine differences between global amyloid quartile groups 
+# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propogation in the Brain
+<br></br>
+<div style="text-align:center;">
+    <img src="/readme_photos/graphical_lasso_schematic.png" alt="Screenshot">
+</div>
+
+<br></br>
+
+In this repository, you will find all the code necessary to:  
+1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
+2. Run graphical machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker spurious correlations.  
+3. Analyze graph metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
 
 ## I. Data Cleaning  
-A. The raw csv files downloaded from ADNI and A4 are located in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data**
-   1. ADNI raw csv data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/adni** <br>
-   The raw csv with centiloid values is in this folder and named **UCBERKLEY_AMY_6MM_05Oct2023.csv** <br>
-   The raw csv with tau suvr values is in this folder and named **hippo_UCBERKLEY_TAUPVC_6MM_13Nov2023.csv** <br>
+
+A. Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. <br> 
+1. A list of de-identified subject IDs of the ADNI participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) <br> 
+2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv) <br>
+
+    <img src="/readme_photos/Participant Selection Process.png" alt="Screenshot">
+</div>
    
-   2. A4 data will be in **mci_mri_graph/data_paths_and_cleaning/data/raw_csv_data/a4** <br>
-    The raw csv with centiloid values is in this folder and named **A4_PETSUVR_15_Aug2023.csv** <br>
-    The raw csv with tau suvr values is in this folder and named **TAUSUVR_15_Aug2023.csv** <br>
-   
+B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cleaning_scripts](https://github.com/vkola-lab/jad2024/tree/main/data_paths_and_cleaning/data_cleaning_scripts) <br>
 
-B. Data cleaning scrips are located in **mci_mri_graph/data_paths_and_cleaning/data_cleaning_scrips** <br>
+   1. [merging_cent_tau_csvs.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/merging_cent_tau_csvs.ipynb) which merges the centiloid and tau SUVR raw csvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style [merged_adni/adni_at_amy_pos.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos.csv) where adni/a4 is whichever dataset that csv belongs to <br>
+   2. [adni_a4_data_harmonization.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/adni_a4_data_harmonization.ipynb)
+   which narrows down a list of 44 brain region shared across the ADNI and A4 data and saves them to [jad2024/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv) where a4/adni is the parent folder name for the csv depending ion whichever cohort that data belongs to. <br>
 
-   1. **merging_cent_tau_csvs.ipynb** which merges the centiloid and tau SUVR raw cvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style **merged_adni/a4_at_amy_pos.csv** where adni/a4 is whichever dataset that csv belongs to <br>
-   2. **adni_a4_data_harmonization.ipynb**
-   which narrows down a list of 44 brain region shared across the adni and a4 data <br>
-   4. **creating_quartiles** which creates centiloid quartile groups for adni and a4 and saves them to separate csv files that can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles**
 
-C. Final Data Paths for CSVs with Tau SUVR Values for Each Centiloid Quartile Group <br>
-The file paths to the input data for the graphical models can be found in **mci_mri_graph/data_paths_and_cleaning/data/final_cleaned_quartiles** :  <br>
-   1. The ADNI data csv for each centiloid quartile will be in: **mci_mri_graph/Data_paths_and_cleaning/Data/ADNI**   <br>
-   2. The A4 data csv for each centiloid quartile will be in:  **mci_mri_graph/Data_paths_and_cleaning/Data/A4**  <br>
-
-## II. Construct and Analyze Graphs 
+## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
 
 ### Graphical Modeling Scripts 
-In this folder you will find scripts to created construct graphical models on the quartile data can be found in the folder **/mci_mri_graph/pet_graphs/current_tau_graphs** <br> 
-   1. **mci_mri_graph/pet_graphs/current_tau_graphs/bic.ipynb** is a script to show how different alpha values affect the sparsity of the precision matrix and BIC of the graphical model 
+In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs) you will find scripts for hyperparamter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups <br> 
+   1. [jad2024/analyze_graphs/hyperparamter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb) is a script to show how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Choosing an optimal alpha value ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
+    <div style="text-align:center;">
+    <img src="/readme_photos/nonzero_frac_bic.png" alt="Screenshot">
+</div>
 
-   2. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap.ipynb** is a script that takes the final quartile data for both ADNI and A4 and has the outline of code to create X number of bootstrap samples of the data and fit the graphical model to each bootstrapped sample and produce a graph visualization of all of these fitted bootstrapped models (calculated as the average precision matrix across all models). It also contains commented out skeletin code for calculating graph level metrics for each quartile group and then doing a t test to compare across groups. <br>
 
-   3. **mci_mri_graph/pet_graphs/current_tau_graphs/cent_pop_ggm_bootstrap_visualization.ipynb** is a similar to the previous script, except it also includes additionaly visualizations of node neighborhoods (nodes with more than one degree connectivity) <br>
+2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
+
+<div style="text-align:center;">
+    <img src="/readme_photos/graph_metrics_boxplot.png" alt="Screenshot">
+</div>
+
+
+<div style="text-align:center;">
+    <img src="/readme_photos/graph_comp.png" alt="Screenshot">
+</div>
+
+
+3. [jad2024/anaqlyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb)is a script that preforms significicance testing between mean graph metrics between amyloid groups. It preforms an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (significance tests were chosen by running [jad2024/anaqlyze_graphs/hyperparamter_tuning/metrics_dis_checker.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/metrics_dis_checker.ipynb) to plot the distribution of each graph metric to determine the most approriate statistical test to apply to analyze differences across centiloid groups.)
 
 
 
