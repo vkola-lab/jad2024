@@ -1,16 +1,17 @@
 import marimo
 
-__generated_with = "0.4.7"
+__generated_with = "0.6.10"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def __(mo):
     mo.md(
-        """# Load data
-    ## Tau SUVR
-    ADNI and A4 use two slightly different normalization conventions for computing SUVR, to make them comparable we have to divide all the columns in ADNI by the values in the `cerebellum_cortex` column. We then drop that column, as it is identically 1.
-    """
+        """
+        # Load data
+        ## Tau SUVR
+        ADNI and A4 use two slightly different normalization conventions for computing SUVR, to make them comparable we have to divide all the columns in ADNI by the values in the `cerebellum_cortex` column. We then drop that column, as it is identically 1.
+        """
     )
     return
 
@@ -18,7 +19,7 @@ def __(mo):
 @app.cell
 def __(pd):
     adni = pd.read_csv(
-        "../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv",
+        "../../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv",
         dtype={"RID": str},
     )
 
@@ -34,7 +35,7 @@ def __(pd):
     ).drop(columns="CEREBELLUM_CORTEX")
 
     a4 = pd.read_csv(
-        "../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv",
+        "../../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv",
         dtype={"RID": str},
     ).drop(columns="CEREBELLUM_CORTEX")
     return a4, adni
@@ -56,12 +57,12 @@ def __(mo):
 @app.cell
 def __(pd):
     demo_a4 = pd.read_csv(
-        "../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv",
+        "../../data_paths_and_cleaning/data/demographic_csvs/A4/a4_filtered_demo.csv",
         dtype={"RID": str},
     )
 
     demo_adni = pd.read_csv(
-        "../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv",
+        "../../data_paths_and_cleaning/data/demographic_csvs/ADNI/adni_filtered_demo.csv",
         dtype={"RID": str},
     )
 
@@ -100,8 +101,10 @@ def __(adni_with_demo):
 @app.cell
 def __(mo):
     mo.md(
-        """# Generate one example graph
-    We keep demographics (e.g. age) as a pseudoregion, so the partial correlations are controlled for age."""
+        """
+        # Generate one example graph
+        We keep demographics (e.g. age) as a pseudoregion, so the partial correlations are controlled for age.
+        """
     )
     return
 
@@ -175,9 +178,7 @@ def __(compute_precision, data, partial_correlation, precision_to_graph):
 
 @app.cell
 def __(mo):
-    mo.md(
-        """The partial correlation matrix has the same sparsity as the precision matrix, but is easier to interpret, it has the correlation coefficients between the residuals of each pair of variables once you regressed on all the other ones."""
-    )
+    mo.md("The partial correlation matrix has the same sparsity as the precision matrix, but is easier to interpret, it has the correlation coefficients between the residuals of each pair of variables once you regressed on all the other ones.")
     return
 
 
@@ -285,7 +286,7 @@ def __(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def __(bootstrap, compute_precision, data, mo, np, partial, pd):
     alphas = np.linspace(0.05, 1, 16)
 
@@ -344,9 +345,11 @@ def __(partial_corr_nz, plt):
 
 @app.cell
 def __(mo):
-    mo.md("""# Finite Size Effects
-    We can do a training curve or compute the correlation between metrics at subsample sizes
-    """
+    mo.md(
+        """
+        # Finite Size Effects
+        We can do a training curve or compute the correlation between metrics at subsample sizes
+        """
     )
     return
 
@@ -357,7 +360,7 @@ def __(metrics):
     return
 
 
-@app.cell
+@app.cell(disabled=True)
 def __(
     compute_metrics,
     compute_precision,
@@ -497,9 +500,10 @@ def __(a4_quantile_labels, adni_quantile_labels, pd):
 @app.cell
 def __(mo):
     mo.md(
-        """# Graph Metrics
-    Note that by default many `nx` functions do not keep into accont edge weights
-    """
+        """
+        # Graph Metrics
+        Note that by default many `nx` functions do not keep into accont edge weights
+        """
     )
     return
 
@@ -552,7 +556,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 3
+    _n_boot = 64
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
@@ -651,8 +655,10 @@ def __():
 @app.cell
 def __(mo):
     mo.md(
-        """# Statistical tests
-    Are the three groups significantly different?"""
+        """
+        # Statistical tests
+        Are the three groups significantly different?
+        """
     )
     return
 
@@ -744,7 +750,7 @@ def __(np):
         else:
             return -np.arctanh(np.abs(pcorr) - 1)
 
-        # return 1 - np.abs(pcorr) # this is what Dyrba 2020 claims to use, but it makes fully connected graphs?
+        # return 1 - np.abs(pcorr) # this is what Dyrba 2020 uses, it makes fully connected graphs
 
         # return -np.log(np.abs(pcorr)).replace({np.inf: 0, -np.inf: 0, np.nan:0})
     return pcorr_to_distance,
