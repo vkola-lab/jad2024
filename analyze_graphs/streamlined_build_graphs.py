@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.3.3"
+__generated_with = "0.4.7"
 app = marimo.App(width="medium")
 
 
@@ -107,8 +107,40 @@ def __(mo):
 
 
 @app.cell
+def __(PowerTransformer):
+    from sklearn.preprocessing import StandardScaler
+
+    power = PowerTransformer().set_output(transform='pandas')
+    return StandardScaler, power
+
+
+@app.cell
 def __(adni_with_demo):
-    data = adni_with_demo[adni_with_demo["CENTILOIDS"] > 54].drop(
+    adni_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE']).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    return
+
+
+@app.cell
+def __(adni_with_demo, power):
+    power.fit_transform(adni_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE'])).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    return
+
+
+@app.cell
+def __(a4_with_demo):
+    a4_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE']).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    return
+
+
+@app.cell
+def __(a4_with_demo, power):
+    power.fit_transform(a4_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE'])).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    return
+
+
+@app.cell
+def __(adni_with_demo):
+    data = adni_with_demo[adni_with_demo["CENTILOIDS"] >= 94].drop(
         columns=["RID", "CENTILOIDS"]
     )
     return data,
@@ -177,6 +209,8 @@ def __(np, pcorr, px):
     _pcorr_masked = pcorr.copy()
     _pcorr_masked[_mask] = np.nan
 
+    # _pcorr_masked = _pcorr_masked.replace(0,np.nan)
+
     _fig = px.imshow(
         _pcorr_masked.round(2),
         width=1000,
@@ -187,11 +221,14 @@ def __(np, pcorr, px):
         text_auto=True,
     )
 
+
     _fig.update_layout(
         {
             "plot_bgcolor": "white",
-        }
+        },
     )
+
+    _fig.update_traces(textfont_size=7)
     return
 
 
@@ -307,47 +344,53 @@ def __(partial_corr_nz, plt):
 
 @app.cell
 def __(mo):
-    mo.md(
-        """# Finite Size Effects
-    How do we know if we have enough data? We should include a training curve
+    mo.md("""# Finite Size Effects
+    We can do a training curve or compute the correlation between metrics at subsample sizes
     """
     )
     return
 
 
-@app.cell(disabled=True)
+@app.cell
+def __(metrics):
+    metrics
+    return
+
+
+@app.cell
 def __(
-    alphas,
     compute_metrics,
     compute_precision,
     data,
     metrics,
     mo,
     np,
-    params,
     pd,
     precision_to_graph,
 ):
+    _params = {
+        "alpha": 0.15,
+        "max_iter": 1000,
+        "tol": 1e-3,
+        "mode": "cd",
+        "eps": 1e-12,
+        "enet_tol": 1e-7,
+    }
+
     finite_size = []
 
-    for _alpha in mo.status.progress_bar(alphas):
-        _params = {
-            "alpha": _alpha,
-            "max_iter": 1000,
-            "tol": 1e-3,
-            "mode": "cd",
-            "eps": 1e-12,
-            "enet_tol": 1e-7,
-        }
+    _n_boot = 100
 
-        for _frac in np.linspace(0.2, 1, 16):
-            for _ in range(8):  # bootstrap samples
+    for _frac in mo.status.progress_bar(np.linspace(0.4, 1, 16)):
+            for _ in range(_n_boot):  # bootstrap samples
                 _sample = data.sample(frac=_frac, replace=True)
                 metrics_dict = compute_metrics(
-                    precision_to_graph(compute_precision(_sample, params)), metrics
+                    precision_to_graph(compute_precision(_sample, _params)), metrics
                 )
+
+                metrics_dict["Sample Fraction"] = _frac
                 metrics_dict["N"] = len(_sample)
-                metrics_dict["alpha"] = _alpha
+                metrics_dict["alpha"] = _params['alpha']
                 finite_size.append(metrics_dict)
 
     finite_size = pd.DataFrame(finite_size)
@@ -356,14 +399,27 @@ def __(
 
 @app.cell
 def __(finite_size):
-    finite_size
+    finite_size.head()
     return
 
 
 @app.cell
-def __(finite_size, sns):
-    sns.lineplot(data=finite_size.groupby("N").mean(), x="N", y="Efficiency")
-    # sns.lineplot(data=finite_size,x='N',y='Clustering Coefficient')
+def __(finite_size, plt, sns):
+    _fig,_ax = plt.subplots(1,3,figsize=(10,3))
+
+    sns.lineplot(data=finite_size,x='N',y='Weighted Clustering Coefficient',errorbar='sd',ax=_ax[0])
+    sns.lineplot(data=finite_size,x='N',y='Weighted Avg. Shortest Path Length',errorbar='sd',ax=_ax[1])
+    sns.lineplot(data=finite_size,x='N',y='Weighted Small World',errorbar='sd',ax=_ax[2])
+
+    # sns.boxplot(data=finite_size, x="N", y="Clustering",native_scale=True)
+    _fig.tight_layout()
+    plt.show()
+    return
+
+
+@app.cell
+def __():
+    # finite_size.to_csv("adni_high_subsample_100boot.csv",index=False)
     return
 
 
@@ -496,7 +552,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 1000
+    _n_boot = 3
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
