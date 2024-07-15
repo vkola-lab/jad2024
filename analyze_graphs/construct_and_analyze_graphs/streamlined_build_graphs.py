@@ -748,7 +748,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 1000
+    _n_boot = 4
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
@@ -803,10 +803,16 @@ def __(
 
 
 @app.cell
+def __(plt):
+    plt.style.use('seaborn-v0_8-whitegrid')
+    return
+
+
+@app.cell
 def __(pd):
     # graph_metrics_by_quantile.to_csv('graph_metrics_adni_a4_bootstrapped_3quant.csv',index=False)
     graph_metrics_by_quant = pd.read_csv(
-        "graph_metrics_adni_a4_bootstrapped_3quant.csv"
+        "../figures/graph_metrics_adni_a4_bootstrapped_3quant_log.csv"
     )
     graph_metrics_by_quant
     return graph_metrics_by_quant,
@@ -837,8 +843,8 @@ def __(graph_metrics_by_quant, metrics, plt, sns):
     _fig.tight_layout()
     _ax[0].legend().set_visible(False)
     _ax[1].legend().set_visible(False)
-    _fig.savefig('graph_metrics_boxplot.pdf')
-    # plt.show()
+    # _fig.savefig('graph_metrics_boxplot_log.pdf')
+    plt.show()
     return
 
 
