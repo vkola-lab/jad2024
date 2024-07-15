@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.6.10"
+__generated_with = "0.6.17"
 app = marimo.App(width="medium")
 
 
@@ -38,6 +38,14 @@ def __(pd):
         "../../data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv",
         dtype={"RID": str},
     ).drop(columns="CEREBELLUM_CORTEX")
+
+
+    # Move centiloid column to the front
+    _column_to_move = a4.pop("CENTILOIDS")
+    a4.insert(1, "CENTILOIDS", _column_to_move)
+
+    # adni.loc[:,'LATERALOCCIPITAL':] = np.tanh(adni.loc[:,'LATERALOCCIPITAL':])
+    # a4.loc[:,'LATERALOCCIPITAL':] = np.tanh(a4.loc[:,'LATERALOCCIPITAL':])
     return a4, adni
 
 
@@ -99,6 +107,69 @@ def __(adni_with_demo):
 
 
 @app.cell
+def __(adni):
+    adni.loc[:,'LATERALOCCIPITAL':]
+    return
+
+
+@app.cell
+def __(adni, mo):
+    col_to_hist = mo.ui.dropdown(adni.columns,value='LATERALOCCIPITAL')
+    col_to_hist
+    return col_to_hist,
+
+
+@app.cell
+def __(
+    PowerTransformer,
+    StandardScaler,
+    adni,
+    col_to_hist,
+    np,
+    pd,
+    plt,
+    sns,
+):
+    _fig,_axs = plt.subplots(2,2,figsize=(8,4),sharex=True)
+
+    _base = adni[[col_to_hist.value]].rename(columns={col_to_hist.value:"Base"})
+
+
+    _scaled = (
+        StandardScaler().set_output(transform='pandas').fit_transform(
+                    adni[[col_to_hist.value]]
+                ).rename(columns={col_to_hist.value:"Scale"})
+            )
+
+
+    _log_transf = (StandardScaler().set_output(transform='pandas').fit_transform(
+                    np.log(adni[[col_to_hist.value]])
+                ).rename(columns={col_to_hist.value:"Log"})
+            )
+
+    _pow_transf = (PowerTransformer().set_output(transform='pandas').fit_transform(
+                    adni[[col_to_hist.value]]
+                ).rename(columns={col_to_hist.value:'Power'})
+          )
+
+    _df = pd.concat((_base,_scaled,_log_transf,_pow_transf),axis=1)
+
+    _fill = True
+
+    sns.histplot(_df,x='Base', ax=_axs.flat[0],legend=False,element='step', fill=_fill, alpha=0.4)
+    sns.histplot(_df,x='Scale',ax=_axs.flat[1],legend=False,element='step', fill=_fill, alpha=0.4)
+    sns.histplot(_df,x='Log',  ax=_axs.flat[2],legend=False,element='step',  fill=_fill, alpha=0.4)
+    sns.histplot(_df,x='Power',ax=_axs.flat[3],legend=False,element='step',fill=_fill, alpha=0.4)
+
+    _fig.suptitle(col_to_hist.value,size=9)
+    _axs.flat[0].legend(title='Transformation', loc='upper right', labels=['None'])
+    _axs.flat[1].legend(title='Transformation', loc='upper right', labels=['Scale'])
+    _axs.flat[2].legend(title='Transformation', loc='upper right', labels=['Log'])
+    _axs.flat[3].legend(title='Transformation', loc='upper right', labels=['Power'])
+    return
+
+
+@app.cell
 def __(mo):
     mo.md(
         """
@@ -111,10 +182,8 @@ def __(mo):
 
 @app.cell
 def __(PowerTransformer):
-    from sklearn.preprocessing import StandardScaler
-
     power = PowerTransformer().set_output(transform='pandas')
-    return StandardScaler, power
+    return power,
 
 
 @app.cell
@@ -287,21 +356,23 @@ def __(mo):
 
 
 @app.cell
-def __(bootstrap, compute_precision, data, mo, np, partial, pd):
-    alphas = np.linspace(0.05, 1, 16)
+def __(adni_with_demo, bootstrap, compute_precision, mo, np, partial, pd):
+    alphas = np.linspace(0.13, 0.4, 16)
 
     _nz = []
 
-    _df = data
+    _df = adni_with_demo.drop(
+        columns=["RID", "CENTILOIDS"]
+    )
 
     for alpha in mo.status.progress_bar(alphas):
         _params = {
             "alpha": alpha,
             "max_iter": 1000,
-            "tol": 1e-3,
+            "tol": 1e-4,
             "mode": "cd",
-            "eps": 1e-12,
-            "enet_tol": 1e-7,
+            "eps": 1e-6,
+            "enet_tol": 1e-9,
         }
 
         _fun = partial(compute_precision, params=_params)
@@ -309,7 +380,7 @@ def __(bootstrap, compute_precision, data, mo, np, partial, pd):
         # this is a list, one per bootstrap samples
         _nonzero_counts = np.array(
             list(
-                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=8))
+                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=16))
             )  # about 60s with n = 128
         )
 
@@ -556,7 +627,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 64
+    _n_boot = 10
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
@@ -757,7 +828,7 @@ def __(np):
 
 
 @app.cell
-def __(GraphicalLasso, PowerTransformer, make_pipeline, pd):
+def __(GraphicalLasso, StandardScaler, make_pipeline, pd):
     def compute_precision(data, params, return_covariance=False):
         """Takes a dataframe and computes the precision matrix via sklearn.covariance.GraphicalLasso. The data is first transformed via PowerTransformer to ensure normality.
 
@@ -767,7 +838,11 @@ def __(GraphicalLasso, PowerTransformer, make_pipeline, pd):
         return_covariance: if True, also return the covariance matrix. By default only return precision
         """
 
-        glasso = make_pipeline(PowerTransformer(), GraphicalLasso(**params))
+        glasso = make_pipeline(
+            # PowerTransformer(), 
+            StandardScaler(),
+            GraphicalLasso(**params)
+        )
 
         glasso.fit(data)
 
@@ -961,10 +1036,16 @@ def __():
 
 @app.cell
 def __():
-    from sklearn.preprocessing import PowerTransformer
+    from sklearn.preprocessing import PowerTransformer,StandardScaler,RobustScaler
     from sklearn.covariance import GraphicalLasso
     from sklearn.pipeline import make_pipeline
-    return GraphicalLasso, PowerTransformer, make_pipeline
+    return (
+        GraphicalLasso,
+        PowerTransformer,
+        RobustScaler,
+        StandardScaler,
+        make_pipeline,
+    )
 
 
 if __name__ == "__main__":
