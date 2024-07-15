@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.6.17"
+__generated_with = "0.7.5"
 app = marimo.App(width="medium")
 
 
@@ -17,7 +17,7 @@ def __(mo):
 
 
 @app.cell
-def __(pd):
+def __(np, pd):
     adni = pd.read_csv(
         "../../data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos_bi_harm.csv",
         dtype={"RID": str},
@@ -44,9 +44,23 @@ def __(pd):
     _column_to_move = a4.pop("CENTILOIDS")
     a4.insert(1, "CENTILOIDS", _column_to_move)
 
-    # adni.loc[:,'LATERALOCCIPITAL':] = np.tanh(adni.loc[:,'LATERALOCCIPITAL':])
-    # a4.loc[:,'LATERALOCCIPITAL':] = np.tanh(a4.loc[:,'LATERALOCCIPITAL':])
-    return a4, adni
+    regions = adni.columns.drop(["RID", "CENTILOIDS"])
+
+    adni[regions] = np.log(adni[regions])
+    a4[regions] = np.log(a4[regions])
+    return a4, adni, regions
+
+
+@app.cell
+def __(a4):
+    a4
+    return
+
+
+@app.cell
+def __(adni):
+    adni
+    return
 
 
 @app.cell(disabled=True)
@@ -108,13 +122,13 @@ def __(adni_with_demo):
 
 @app.cell
 def __(adni):
-    adni.loc[:,'LATERALOCCIPITAL':]
+    adni.loc[:, "LATERALOCCIPITAL":]
     return
 
 
 @app.cell
 def __(adni, mo):
-    col_to_hist = mo.ui.dropdown(adni.columns,value='LATERALOCCIPITAL')
+    col_to_hist = mo.ui.dropdown(adni.columns, value="LATERALOCCIPITAL")
     col_to_hist
     return col_to_hist,
 
@@ -130,42 +144,83 @@ def __(
     plt,
     sns,
 ):
-    _fig,_axs = plt.subplots(2,2,figsize=(8,4),sharex=True)
+    _fig, _axs = plt.subplots(2, 2, figsize=(8, 4), sharex=True)
 
-    _base = adni[[col_to_hist.value]].rename(columns={col_to_hist.value:"Base"})
+    _base = adni[[col_to_hist.value]].rename(columns={col_to_hist.value: "Base"})
 
 
     _scaled = (
-        StandardScaler().set_output(transform='pandas').fit_transform(
-                    adni[[col_to_hist.value]]
-                ).rename(columns={col_to_hist.value:"Scale"})
-            )
+        StandardScaler()
+        .set_output(transform="pandas")
+        .fit_transform(adni[[col_to_hist.value]])
+        .rename(columns={col_to_hist.value: "Scale"})
+    )
 
 
-    _log_transf = (StandardScaler().set_output(transform='pandas').fit_transform(
-                    np.log(adni[[col_to_hist.value]])
-                ).rename(columns={col_to_hist.value:"Log"})
-            )
+    _log_transf = (
+        StandardScaler()
+        .set_output(transform="pandas")
+        .fit_transform(np.log(adni[[col_to_hist.value]]))
+        .rename(columns={col_to_hist.value: "Log"})
+    )
 
-    _pow_transf = (PowerTransformer().set_output(transform='pandas').fit_transform(
-                    adni[[col_to_hist.value]]
-                ).rename(columns={col_to_hist.value:'Power'})
-          )
+    _pow_transf = (
+        PowerTransformer()
+        .set_output(transform="pandas")
+        .fit_transform(adni[[col_to_hist.value]])
+        .rename(columns={col_to_hist.value: "Power"})
+    )
 
-    _df = pd.concat((_base,_scaled,_log_transf,_pow_transf),axis=1)
+    _df = pd.concat((_base, _scaled, _log_transf, _pow_transf), axis=1)
 
     _fill = True
 
-    sns.histplot(_df,x='Base', ax=_axs.flat[0],legend=False,element='step', fill=_fill, alpha=0.4)
-    sns.histplot(_df,x='Scale',ax=_axs.flat[1],legend=False,element='step', fill=_fill, alpha=0.4)
-    sns.histplot(_df,x='Log',  ax=_axs.flat[2],legend=False,element='step',  fill=_fill, alpha=0.4)
-    sns.histplot(_df,x='Power',ax=_axs.flat[3],legend=False,element='step',fill=_fill, alpha=0.4)
+    sns.histplot(
+        _df,
+        x="Base",
+        ax=_axs.flat[0],
+        legend=False,
+        element="step",
+        fill=_fill,
+        alpha=0.4,
+    )
+    sns.histplot(
+        _df,
+        x="Scale",
+        ax=_axs.flat[1],
+        legend=False,
+        element="step",
+        fill=_fill,
+        alpha=0.4,
+    )
+    sns.histplot(
+        _df,
+        x="Log",
+        ax=_axs.flat[2],
+        legend=False,
+        element="step",
+        fill=_fill,
+        alpha=0.4,
+    )
+    sns.histplot(
+        _df,
+        x="Power",
+        ax=_axs.flat[3],
+        legend=False,
+        element="step",
+        fill=_fill,
+        alpha=0.4,
+    )
 
-    _fig.suptitle(col_to_hist.value,size=9)
-    _axs.flat[0].legend(title='Transformation', loc='upper right', labels=['None'])
-    _axs.flat[1].legend(title='Transformation', loc='upper right', labels=['Scale'])
-    _axs.flat[2].legend(title='Transformation', loc='upper right', labels=['Log'])
-    _axs.flat[3].legend(title='Transformation', loc='upper right', labels=['Power'])
+    _fig.suptitle(col_to_hist.value, size=9)
+    _axs.flat[0].legend(title="Transformation", loc="upper right", labels=["None"])
+    _axs.flat[1].legend(
+        title="Transformation", loc="upper right", labels=["Scale"]
+    )
+    _axs.flat[2].legend(title="Transformation", loc="upper right", labels=["Log"])
+    _axs.flat[3].legend(
+        title="Transformation", loc="upper right", labels=["Power"]
+    )
     return
 
 
@@ -182,31 +237,51 @@ def __(mo):
 
 @app.cell
 def __(PowerTransformer):
-    power = PowerTransformer().set_output(transform='pandas')
+    power = PowerTransformer().set_output(transform="pandas")
     return power,
 
 
 @app.cell
 def __(adni_with_demo):
-    adni_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE']).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    adni_with_demo.drop(columns=["RID", "CENTILOIDS", "PTAGE"]).apply(
+        ["skew", "kurtosis"]
+    ).agg(
+        ["median", "std", lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+        axis=1,
+    )
     return
 
 
 @app.cell
 def __(adni_with_demo, power):
-    power.fit_transform(adni_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE'])).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    power.fit_transform(
+        adni_with_demo.drop(columns=["RID", "CENTILOIDS", "PTAGE"])
+    ).apply(["skew", "kurtosis"]).agg(
+        ["median", "std", lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+        axis=1,
+    )
     return
 
 
 @app.cell
 def __(a4_with_demo):
-    a4_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE']).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    a4_with_demo.drop(columns=["RID", "CENTILOIDS", "PTAGE"]).apply(
+        ["skew", "kurtosis"]
+    ).agg(
+        ["median", "std", lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+        axis=1,
+    )
     return
 
 
 @app.cell
 def __(a4_with_demo, power):
-    power.fit_transform(a4_with_demo.drop(columns=['RID','CENTILOIDS','PTAGE'])).apply(['skew','kurtosis']).agg(['median','std',lambda x: x.quantile(0.25),lambda x:x.quantile(0.75)],axis=1)
+    power.fit_transform(
+        a4_with_demo.drop(columns=["RID", "CENTILOIDS", "PTAGE"])
+    ).apply(["skew", "kurtosis"]).agg(
+        ["median", "std", lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)],
+        axis=1,
+    )
     return
 
 
@@ -357,13 +432,11 @@ def __(mo):
 
 @app.cell
 def __(adni_with_demo, bootstrap, compute_precision, mo, np, partial, pd):
-    alphas = np.linspace(0.13, 0.4, 16)
+    alphas = np.linspace(0.11, 0.4, 16)
 
     _nz = []
 
-    _df = adni_with_demo.drop(
-        columns=["RID", "CENTILOIDS"]
-    )
+    _df = adni_with_demo.drop(columns=["RID", "CENTILOIDS"])
 
     for alpha in mo.status.progress_bar(alphas):
         _params = {
@@ -380,7 +453,7 @@ def __(adni_with_demo, bootstrap, compute_precision, mo, np, partial, pd):
         # this is a list, one per bootstrap samples
         _nonzero_counts = np.array(
             list(
-                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=16))
+                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=64))
             )  # about 60s with n = 128
         )
 
@@ -456,16 +529,16 @@ def __(
     _n_boot = 100
 
     for _frac in mo.status.progress_bar(np.linspace(0.4, 1, 16)):
-            for _ in range(_n_boot):  # bootstrap samples
-                _sample = data.sample(frac=_frac, replace=True)
-                metrics_dict = compute_metrics(
-                    precision_to_graph(compute_precision(_sample, _params)), metrics
-                )
+        for _ in range(_n_boot):  # bootstrap samples
+            _sample = data.sample(frac=_frac, replace=True)
+            metrics_dict = compute_metrics(
+                precision_to_graph(compute_precision(_sample, _params)), metrics
+            )
 
-                metrics_dict["Sample Fraction"] = _frac
-                metrics_dict["N"] = len(_sample)
-                metrics_dict["alpha"] = _params['alpha']
-                finite_size.append(metrics_dict)
+            metrics_dict["Sample Fraction"] = _frac
+            metrics_dict["N"] = len(_sample)
+            metrics_dict["alpha"] = _params["alpha"]
+            finite_size.append(metrics_dict)
 
     finite_size = pd.DataFrame(finite_size)
     return finite_size, metrics_dict
@@ -479,11 +552,25 @@ def __(finite_size):
 
 @app.cell
 def __(finite_size, plt, sns):
-    _fig,_ax = plt.subplots(1,3,figsize=(10,3))
+    _fig, _ax = plt.subplots(1, 3, figsize=(10, 3))
 
-    sns.lineplot(data=finite_size,x='N',y='Weighted Clustering Coefficient',errorbar='sd',ax=_ax[0])
-    sns.lineplot(data=finite_size,x='N',y='Weighted Avg. Shortest Path Length',errorbar='sd',ax=_ax[1])
-    sns.lineplot(data=finite_size,x='N',y='Weighted Small World',errorbar='sd',ax=_ax[2])
+    sns.lineplot(
+        data=finite_size,
+        x="N",
+        y="Weighted Clustering Coefficient",
+        errorbar="sd",
+        ax=_ax[0],
+    )
+    sns.lineplot(
+        data=finite_size,
+        x="N",
+        y="Weighted Avg. Shortest Path Length",
+        errorbar="sd",
+        ax=_ax[1],
+    )
+    sns.lineplot(
+        data=finite_size, x="N", y="Weighted Small World", errorbar="sd", ax=_ax[2]
+    )
 
     # sns.boxplot(data=finite_size, x="N", y="Clustering",native_scale=True)
     _fig.tight_layout()
@@ -627,7 +714,7 @@ def __(
         "enet_tol": 1e-7,
     }
 
-    _n_boot = 10
+    _n_boot = 1000
 
     adni_boot_metrics_results = []
     a4_boot_metrics_results = []
@@ -645,6 +732,8 @@ def __(
             )
         )
 
+    # adni_boot_metrics_results.to_csv('adni_bootstrap_graph_metrics.csv',index=False)
+
     for quantile in mo.status.progress_bar(range(n_quantiles)):
         a4_boot_metrics_results.append(
             boostrap_graph_metrics(
@@ -657,6 +746,8 @@ def __(
                 randomize_graph=False,
             )
         )
+
+    # a4_boot_metrics_results.to_csv('adni_bootstrap_graph_metrics.csv',index=False)
 
     graph_metrics_by_quantile = (
         pd.concat(
@@ -683,7 +774,7 @@ def __(
 
 @app.cell
 def __():
-    # graph_metrics_by_quantile.to_csv('graph_metrics_adni_a4_bootstrapped_3quant.csv',index=False)
+    # graph_metrics_by_quantile.to_csv('graph_metrics_adni_a4_bootstrapped_3quant_log.csv',index=False)
     return
 
 
@@ -704,6 +795,8 @@ def __(graph_metrics_by_quantile, metrics, plt, sns):
     _ax[0].legend().set_visible(False)
     _ax[1].legend().set_visible(False)
     plt.show()
+
+    # _fig.savefig('boxplot_log.pdf')
     return
 
 
@@ -839,9 +932,9 @@ def __(GraphicalLasso, StandardScaler, make_pipeline, pd):
         """
 
         glasso = make_pipeline(
-            # PowerTransformer(), 
+            # PowerTransformer(),
             StandardScaler(),
-            GraphicalLasso(**params)
+            GraphicalLasso(**params),
         )
 
         glasso.fit(data)
@@ -1036,7 +1129,11 @@ def __():
 
 @app.cell
 def __():
-    from sklearn.preprocessing import PowerTransformer,StandardScaler,RobustScaler
+    from sklearn.preprocessing import (
+        PowerTransformer,
+        StandardScaler,
+        RobustScaler,
+    )
     from sklearn.covariance import GraphicalLasso
     from sklearn.pipeline import make_pipeline
     return (
