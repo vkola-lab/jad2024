@@ -1,7 +1,7 @@
 import marimo
 
-__generated_with = "0.3.3"
-app = marimo.App(width="medium")
+__generated_with = "0.4.11"
+app = marimo.App(width="full")
 
 
 @app.cell
@@ -108,7 +108,8 @@ def __(mo):
 
 @app.cell
 def __(adni_with_demo):
-    data = adni_with_demo[adni_with_demo["CENTILOIDS"] > 54].drop(
+    # data = adni_with_demo[(adni_with_demo["CENTILOIDS"] <= 94) & (adni_with_demo['CENTILOIDS'] > 54)].drop(
+    data = adni_with_demo[adni_with_demo["CENTILOIDS"] > 94].drop(
         columns=["RID", "CENTILOIDS"]
     )
     return data,
@@ -121,7 +122,16 @@ def __(data):
 
 
 @app.cell
-def __(compute_precision, data, partial_correlation, precision_to_graph):
+def __(
+    a4_quantile_labels,
+    a4_with_demo,
+    adni_quantile_labels,
+    adni_with_demo,
+    compute_precision,
+    data,
+    partial_correlation,
+    precision_to_graph,
+):
     _params = {
         "alpha": 0.15,
         "max_iter": 1000,
@@ -138,7 +148,72 @@ def __(compute_precision, data, partial_correlation, precision_to_graph):
     pcorr = partial_correlation(precision)
 
     graph = precision_to_graph(precision)
-    return covariance, graph, pcorr, precision
+
+    graph_adni_low = precision_to_graph(
+        compute_precision(
+            adni_with_demo[adni_quantile_labels == 0].drop(
+                columns=["RID", "CENTILOIDS"]
+            ),
+            params=_params,
+        )
+    )
+
+    graph_adni_med = precision_to_graph(
+        compute_precision(
+            adni_with_demo[adni_quantile_labels == 1].drop(
+                columns=["RID", "CENTILOIDS"]
+            ),
+            params=_params,
+        )
+    )
+
+    graph_adni_high = precision_to_graph(
+        compute_precision(
+            adni_with_demo[adni_quantile_labels == 2].drop(
+                columns=["RID", "CENTILOIDS"]
+            ),
+            params=_params,
+        )
+    )
+
+    graph_a4_low = precision_to_graph(
+        compute_precision(
+            a4_with_demo[a4_quantile_labels == 0].drop(
+                columns=["RID", "CENTILOIDS"]
+            ),
+            params=_params,
+        )
+    )
+
+    graph_a4_med = precision_to_graph(
+        compute_precision(
+            a4_with_demo[a4_quantile_labels == 1].drop(
+                columns=["RID", "CENTILOIDS"]
+            ),
+            params=_params,
+        )
+    )
+
+    graph_a4_high = precision_to_graph(
+        compute_precision(
+            a4_with_demo[a4_quantile_labels == 2].drop(
+                columns=["RID", "CENTILOIDS"]
+            ),
+            params=_params,
+        )
+    )
+    return (
+        covariance,
+        graph,
+        graph_a4_high,
+        graph_a4_low,
+        graph_a4_med,
+        graph_adni_high,
+        graph_adni_low,
+        graph_adni_med,
+        pcorr,
+        precision,
+    )
 
 
 @app.cell
@@ -202,44 +277,150 @@ def __(mo):
 
 
 @app.cell
-def __(graph, nx, plt):
-    _edge_weights = [
-        1.5 * (2.22 * graph[u][v]["abs(correlation)"]) ** 2
-        for u, v in graph.edges()
-    ]
+def __():
+    abbreviations = {
+        "ACCUMBENS_AREA": "Acc",
+        "AMYGDALA": "Amg",
+        "BANKSSTS": "Bnk",
+        "CAUDALANTERIORCINGULATE": "CaACg",
+        "CAUDALMIDDLEFRONTAL": "CaMFr",
+        "CAUDATE": "Cau",
+        "CUNEUS": "Cun",
+        "ENTORHINAL": "Ent",
+        "FRONTALPOLE": "FrPo",
+        "FUSIFORM": "Fus",
+        "HIPPOCAMPUS": "Hip",
+        "INFERIORPARIETAL": "InPa",
+        "INFERIORTEMPORAL": "InTm",
+        "INSULA": "Ins",
+        "ISTHMUSCINGULATE": "IsCg",
+        "LATERALOCCIPITAL": "LtOc",
+        "LATERALORBITOFRONTAL": "LtOFr",
+        "LINGUAL": "Lin",
+        "MEDIALORBITOFRONTAL": "MeOFr",
+        "MIDDLETEMPORAL": "MiTm",
+        "PALLIDUM": "Pal",
+        "PARACENTRAL": "PaCt",
+        "PARAHIPPOCAMPAL": "PaHi",
+        "PARSOPERCULARIS": "PrsOp",
+        "PARSORBITALIS": "PrsOr",
+        "PARSTRIANGULARIS": "PrsTr",
+        "PERICALCARINE": "PerCa",
+        "POSTCENTRAL": "PsCt",
+        "POSTERIORCINGULATE": "PstCg",
+        "PRECENTRAL": "PreCt",
+        "PRECUNEUS": "PreCu",
+        "PUTAMEN": "Put",
+        "ROSTRALANTERIORCINGULATE": "RsACg",
+        "ROSTRALMIDDLEFRONTAL": "RsMFr",
+        "SUPERIORFRONTAL": "SuFr",
+        "SUPERIORPARIETAL": "SuPr",
+        "SUPERIORTEMPORAL": "SuTm",
+        "SUPRAMARGINAL": "SuMr",
+        "TEMPORALPOLE": "TmPo",
+        "THALAMUS": "Th",
+        "TRANSVERSETEMPORAL": "TrTm",
+        "VENTRALDC": "VnD",
+    }
+    return abbreviations,
 
-    _fig, _ax = plt.subplots(1, 1, figsize=(20, 10))
 
-    nx.set_edge_attributes(
-        graph,
-        {
-            (u, v): {"plot_weight": 0.75 * (2.22 * d["abs(correlation)"]) ** 2}
-            for u, v, d in graph.edges(data=True)
-        },
-    )
+@app.cell
+def __(
+    abbreviations,
+    graph_a4_high,
+    graph_a4_low,
+    graph_adni_high,
+    graph_adni_low,
+    np,
+    nx,
+    plt,
+):
+    _fig, _ax = plt.subplots(2, 2, figsize=(16, 16), squeeze=False)
 
-    pos = nx.spectral_layout(graph, weight="distance")
-    # pos = nx.spring_layout(graph, pos=pos,weight="abs(correlation)", iterations=100)
-    pos = nx.spring_layout(graph, pos=pos, weight="plot_weight", iterations=100)
 
-    nx.draw_networkx_edges(graph, pos, width=_edge_weights, ax=_ax)
+    def plot_graph(G, pos, ax):
+        # normalize the edge weights so that the largest is 1, and the others are divided by that
+        max_weight = (
+            1
+            / np.array(
+                list(nx.get_edge_attributes(G, "correlation").values())
+            ).max()
+        )
 
-    nx.draw_networkx_labels(
-        graph,
-        pos,
-        ax=_ax,
-        font_size=8,
-        bbox=dict(facecolor="white", alpha=1, edgecolor="white", pad=0),
-    )
+        pow = 2
 
-    # Draw edge labels
-    # edge_labels = nx.get_edge_attributes(graph, 'correlation')
-    # nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
+        # for plotting weights
+        _edge_weights = [
+            2.25 * (max_weight * G[u][v]["abs(correlation)"]) ** pow
+            for u, v in G.edges()
+        ]
 
-    plt.axis("off")
+        # for computing layout
+        nx.set_edge_attributes(
+            G,
+            {
+                (u, v): {
+                    "plot_weight": 0.75
+                    * (max_weight * d["abs(correlation)"]) ** pow
+                }
+                for u, v, d in G.edges(data=True)
+            },
+        )
+
+        if pos is None:
+            # pos = nx.spectral_layout(graph, weight="plot_weight")
+            # pos = nx.circular_layout(graph)
+            # pos = nx.random_layout(graph)
+            pos = nx.kamada_kawai_layout(G, weight="abs(correlation)")
+            pos = nx.spring_layout(
+                G, pos=pos, weight="plot_weight", iterations=100
+            )
+
+        nx.draw_networkx_edges(G, pos, width=_edge_weights, ax=ax)
+
+        nx.draw_networkx_labels(
+            G,
+            pos,
+            labels=abbreviations,
+            ax=ax,
+            font_size=18,
+            bbox=dict(facecolor="white", alpha=1, edgecolor="white", pad=0),
+        )
+
+        # Draw edge labels
+        # edge_labels = nx.get_edge_attributes(graph, 'correlation')
+        # nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
+
+        ax.axis("off")
+
+        return pos
+
+
+    layout_pos = plot_graph(graph_adni_low, pos=None, ax=_ax[0, 0])
+    _ax[0, 0].set_title(r"ADNI $21 \leq$ CL $< 54$")
+
+    plot_graph(graph_adni_high, pos=layout_pos, ax=_ax[0, 1])
+    _ax[0, 1].set_title(r"ADNI CL $\geq 94$")
+
+    # plot_graph(graph_a4_low,pos=_pos,ax=_ax[1,0])
+    # _ax[1,0].set_title(r"A4 $21 \leq$ CL $< 54$")
+
+    # plot_graph(graph_a4_high,pos=_pos,ax=_ax[1,1])
+    # _ax[1,1].set_title(r"A4 CL $\geq 94$")
+
+    _pos = plot_graph(graph_a4_low, pos=layout_pos, ax=_ax[1, 0])
+    _ax[1, 0].set_title(r"A4 $21 \leq$ CL $< 54$")
+
+    plot_graph(graph_a4_high, pos=layout_pos, ax=_ax[1, 1])
+    _ax[1, 1].set_title(r"A4 CL $\geq 94$")
+
     _fig.tight_layout()
-    plt.show()
-    return pos,
+
+    _fig.savefig('graph_comparisons.png',dpi=300)
+
+    # plt.show()
+    return layout_pos, plot_graph
 
 
 @app.cell
@@ -248,13 +429,12 @@ def __(mo):
     return
 
 
-@app.cell(hide_code=True)
-def __(bootstrap, compute_precision, data, mo, np, partial, pd):
-    alphas = np.linspace(0.05, 1, 16)
+@app.cell
+def __(GraphicalLasso, PowerTransformer, data, make_pipeline, mo, np, pd):
+    alphas = np.linspace(0.05, 1, 64)
 
     _nz = []
 
-    _df = data
 
     for alpha in mo.status.progress_bar(alphas):
         _params = {
@@ -266,42 +446,97 @@ def __(bootstrap, compute_precision, data, mo, np, partial, pd):
             "enet_tol": 1e-7,
         }
 
-        _fun = partial(compute_precision, params=_params)
 
-        # this is a list, one per bootstrap samples
-        _nonzero_counts = np.array(
-            list(
-                map(np.count_nonzero, bootstrap(_df, _fun, n_samples=8))
-            )  # about 60s with n = 128
-        )
-
-        _nz.append(
-            {
-                "alpha": alpha,
-                "Median": np.median(_nonzero_counts) / len(_df.columns) ** 2,
-                "CI_low": np.quantile(_nonzero_counts, 0.025)
-                / len(_df.columns) ** 2,
-                "CI_high": np.quantile(_nonzero_counts, 0.975)
-                / len(_df.columns) ** 2,
-            }
-        )
+        for _ in range(100):
+            _df = data.sample(frac=1,replace=True)
+        
+            _glasso = make_pipeline(PowerTransformer(), GraphicalLasso(**_params))
+        
+            _glasso.fit(_df)
+        
+            _nz.append(
+                {
+                    "alpha": alpha,
+                    "log_likelihood": _glasso.score(_df),
+                    "nonzero precision": np.count_nonzero(_glasso.named_steps["graphicallasso"].precision_),
+                    "nonzero covariance": np.count_nonzero(_glasso.named_steps["graphicallasso"].covariance_),
+                    "nonzero precision frac": np.count_nonzero(_glasso.named_steps["graphicallasso"].precision_)/_df.shape[1]**2,
+                    "nonzero covariance frac": np.count_nonzero(_glasso.named_steps["graphicallasso"].covariance_)/_df.shape[1]**2,
+                }
+            )
 
     partial_corr_nz = pd.DataFrame(_nz)  # fraction of nonzero entries
+
+    partial_corr_nz['bic'] = (- 2 * partial_corr_nz['log_likelihood'] + ((partial_corr_nz['nonzero precision'] - _df.shape[1])/2 + _df.shape[1]) * np.log(len(_df)))/len(_df)
     return alpha, alphas, partial_corr_nz
 
 
 @app.cell
-def __(partial_corr_nz, plt):
-    partial_corr_nz.plot(x="alpha", y="Median")
-    plt.fill_between(
-        partial_corr_nz.alpha,
-        partial_corr_nz["CI_low"],
-        partial_corr_nz["CI_high"],
-        alpha=0.3,
-    )
+def __(partial_corr_nz):
+    partial_corr_nz
+    return
 
-    plt.xlabel(r"$L_1$ regularization $\alpha$")
-    plt.ylabel("Partial correlation matrix nonzero fraction")
+
+@app.cell
+def __(data, partial_corr_nz, plt, sns):
+    _fig,_ax = plt.subplots(1,2,figsize=(6,3))
+
+    sns.lineplot(partial_corr_nz,x='alpha',y='nonzero precision frac',ax=_ax[0],label='Precision',errorbar='sd')
+    sns.lineplot(partial_corr_nz,x='alpha',y='nonzero covariance frac',ax=_ax[0],label='Covariance',errorbar='sd')
+    sns.lineplot(partial_corr_nz,x='alpha',y='bic',ax=_ax[1],errorbar='sd')
+
+    _ax[0].axhline(1/data.shape[1],color='k',linestyle='--',label="Only diagonal")
+
+    _ax[0].legend(loc=(0,0.45))
+
+    _ax[0].set_xlabel(r"$\alpha$")
+    _ax[1].set_xlabel(r"$\alpha$")
+
+    _ax[0].set_title('(a)',size=12)
+    _ax[1].set_title('(b)',size=12)
+
+    _ax[0].set_ylabel("Fraction of nonzero entries")
+    _ax[1].set_ylabel("BIC")
+
+    _fig.tight_layout()
+
+    _fig.savefig("nonzero_frac_bic.pdf")
+    # plt.show()
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md("# Example regular/small world/random network")
+    return
+
+
+@app.cell
+def __(nx, plt):
+    _n = 13
+    _k = 4
+
+    _seed = 6
+
+    _regular = nx.watts_strogatz_graph(_n,_k,0,seed=_seed)
+    _smallworld = nx.watts_strogatz_graph(_n,_k,0.1,seed=_seed)
+    _random = nx.watts_strogatz_graph(_n,_k,1,seed=_seed)
+
+    _fig,_ax = plt.subplots(1,3,figsize=(6,2.5))
+
+    _ax[0].set_title('(a)')
+    _ax[1].set_title('(b)')
+    _ax[2].set_title('(c)')
+
+    nx.draw_circular(_regular,ax=_ax[0],node_color='black',node_size=50)
+    nx.draw_circular(_smallworld,ax=_ax[1],node_color='black',node_size=50)
+    nx.draw_circular(_random,ax=_ax[2],node_color='black',node_size=50)
+
+    _fig.tight_layout()
+
+    # _fig.savefig('smallworld_example.pdf')
+
+    plt.show()
     return
 
 
@@ -376,6 +611,9 @@ def __(mo):
 @app.cell
 def __(a4, adni, demog, pd, plt, sns):
     # px.histogram(demog,x='',color='Dataset')
+
+    _fig,_ax = plt.subplots(1,1,figsize=(4,2.5))
+
     data_all = (
         pd.concat([adni, a4], keys=["ADNI", "A4"])
         .reset_index(level=0)
@@ -386,12 +624,17 @@ def __(a4, adni, demog, pd, plt, sns):
         data_all,
         x="CENTILOIDS",
         hue="Dataset",
-        alpha=0.3,
+        alpha=0.6,
         common_norm=False,
         # stat="density",
         cumulative=False,
+        ax=_ax,
     )
-    plt.xlabel("Centiloids")
+    plt.xlabel(r"Centiloid score")
+    _fig.tight_layout()
+    plt.show()
+
+    # _fig.savefig('amy_histogram.pdf')
     return data_all,
 
 
@@ -475,7 +718,7 @@ def __():
     return
 
 
-@app.cell
+@app.cell(disabled=True)
 def __(
     a4_quantile_labels,
     a4_with_demo,
@@ -551,28 +794,42 @@ def __(
 
 
 @app.cell
-def __():
+def __(pd):
     # graph_metrics_by_quantile.to_csv('graph_metrics_adni_a4_bootstrapped_3quant.csv',index=False)
-    return
+    graph_metrics_by_quant = pd.read_csv(
+        "graph_metrics_adni_a4_bootstrapped_3quant.csv"
+    )
+    graph_metrics_by_quant
+    return graph_metrics_by_quant,
 
 
 @app.cell
-def __(graph_metrics_by_quantile, metrics, plt, sns):
-    _fig, _ax = plt.subplots(1, 3, figsize=(12, 4), sharex=True)
+def __(graph_metrics_by_quant, metrics, plt, sns):
+    _fig, _ax = plt.subplots(1, 3, figsize=(8, 3), sharex=True)
 
     for _i, _metric in enumerate(metrics):
         sns.boxplot(
-            graph_metrics_by_quantile,
+            graph_metrics_by_quant,
             x="Centiloid Quantile",
             y=_metric,
             hue="Dataset",
             ax=_ax.flat[_i],
+            fliersize=1,
         )
+
+    _ax[0].set_title("(a)",size=12)
+    _ax[1].set_title("(b)",size=12)
+    _ax[2].set_title("(c)",size=12)
+
+    _ax[0].set_ylabel("Clustering Coefficient")
+    _ax[1].set_ylabel("Avg. Shortest Path Lenght")
+    _ax[2].set_ylabel("Small World Coefficient")
 
     _fig.tight_layout()
     _ax[0].legend().set_visible(False)
     _ax[1].legend().set_visible(False)
-    plt.show()
+    _fig.savefig('graph_metrics_boxplot.pdf')
+    # plt.show()
     return
 
 
@@ -891,7 +1148,8 @@ def __():
 
     import seaborn as sns
 
-    plt.style.use("ggplot")
+    # plt.style.use("ggplot")
+    plt.style.use('seaborn-v0_8-whitegrid')
 
     pd.set_option("display.max_columns", 100)
     return alt, mo, multiprocessing, np, nx, partial, pd, plt, px, sns
