@@ -40,7 +40,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
 <div align="center">
     <img src="/readme_photos/new_bic.png" alt="Screenshot">
 </div>
-
+<br />
 2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb): This script creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
 <br />
