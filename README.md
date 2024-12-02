@@ -44,7 +44,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
 
 
 <div style="text-align:center;">
-    <img src="/readme_photos/graph_visualizations.jpg" alt="Screenshot">
+    <img src="/readme_photos/graph_vis.jpg" alt="Screenshot">
 </div>
 
 
