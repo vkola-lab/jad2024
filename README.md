@@ -13,8 +13,8 @@ In this repository, you will find all the code necessary to:
 ## I. Data Cleaning  
 
 A. Researchers can request the data used in this project from the [ADNI](https://adni.loni.usc.edu/data-samples/access-data/) and [A4](https://a4study.org/) websites. <br>
-    <img src="/readme_photos/selection.jpg" alt="Screenshot">
     <img src="/readme_photos/table1.png" alt="Screenshot">
+    <img src="/readme_photos/selection.jpg" alt="Screenshot">
 </div>
 
 
