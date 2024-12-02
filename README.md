@@ -33,9 +33,9 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
 
 ### Graphical Modeling Scripts 
 
-In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs), you will find scripts for hyperparameter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups.
+In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs),you will find scripts for hyperparameter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups.
 
-1. [jad2024/analyze_graphs/hyperparameter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb): This script shows how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied.
+1. [jad2024/analyze_graphs/hyperparameter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb) : This script shows how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied.
 
 <div align="center">
     <img src="/readme_photos/new_bic.png" alt="Screenshot">
