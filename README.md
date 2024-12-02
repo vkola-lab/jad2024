@@ -3,7 +3,6 @@
 <div style="text-align:center;">
     <img src="/readme_photos/figure2.jpg" alt="Screenshot">
 </div>
-
 <br></br>
 
 In this repository, you will find all the code necessary to:  
@@ -33,19 +32,19 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
 In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs) you will find scripts for hyperparamter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups <br> 
    1. [jad2024/analyze_graphs/hyperparamter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb) is a script to show how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Choosing an optimal alpha value ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
     <div style="text-align:center;">
-    <img src="/readme_photos/nonzero_frac_bic.png" alt="Screenshot">
+    <img src="/readme_photos/fig3_nonzero_frac.jpg" alt="Screenshot">
 </div>
 
 
 2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
 <div style="text-align:center;">
-    <img src="/readme_photos/graph_metrics_boxplot.png" alt="Screenshot">
+    <img src="/readme_photos/boxplot.jpg" alt="Screenshot">
 </div>
 
 
 <div style="text-align:center;">
-    <img src="/readme_photos/graph_comp.png" alt="Screenshot">
+    <img src="/readme_photos/graph_visualizations.jpg" alt="Screenshot">
 </div>
 
 
