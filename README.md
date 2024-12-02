@@ -4,6 +4,7 @@
 <div align="center">
     <img src="/readme_photos/new_model.png" alt="Screenshot">
 </div>
+<br />
 
 In this repository, you will find all the code necessary to:  
 1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
