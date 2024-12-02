@@ -18,6 +18,7 @@ A. Researchers can request the data used in this project from the [ADNI](https:/
 <div align="center">
     <img src="/readme_photos/new_pop.png" alt="Screenshot">
 </div>
+<br />
 
 B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cleaning_scripts](https://github.com/vkola-lab/jad2024/tree/main/data_paths_and_cleaning/data_cleaning_scripts)
 
@@ -27,7 +28,6 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
 <div align="center">  
     <img src="/readme_photos/new_select.png" alt="Screenshot">
 </div>
-<br /> 
 
 ## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
 
