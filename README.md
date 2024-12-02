@@ -43,6 +43,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
 
 2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb): This script creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
+<br />
 <div style="text-align:center;">
     <img src="/readme_photos/new_box.png" alt="Screenshot">
 </div>
@@ -50,7 +51,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
 <div style="text-align:center;">
     <img src="/readme_photos/new_vis2.jpg" alt="Screenshot">
 </div>
-
+<br />
 3. [jad2024/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb): This script performs significance testing between mean graph metrics among amyloid groups. It performs an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient (significance tests were chosen by running [jad2024/analyze_graphs/hyperparameter_tuning/metrics_dis_checker.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/metrics_dis_checker.ipynb) to plot the distribution of each graph metric to determine the most appropriate statistical test to apply to analyze differences across centiloid groups).
 
 <div align="center">
