@@ -16,7 +16,7 @@ A. Researchers can request the data used in this project from the [ADNI](https:/
 1. A list of de-identified subject IDs of the ADNI participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) <br> 
 2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv) <br>
 
-    <img src="/readme_photos/selection.png" alt="Screenshot">
+    <img src="/readme_photos/selection.jpg" alt="Screenshot">
     <img src="/readme_photos/table1.png" alt="Screenshot">
 </div>
 
