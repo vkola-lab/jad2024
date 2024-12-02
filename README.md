@@ -1,4 +1,4 @@
-# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propogation in the Brain
+# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propagation in the Brain
 <br></br>
 <div style="text-align:center;">
     <img src="/readme_photos/figure2.jpg" alt="Screenshot">
@@ -7,7 +7,7 @@
 
 In this repository, you will find all the code necessary to:  
 1. Clean and harmonize regional tau PET SUVr values and Centiloid values for ADNI and A4 cohorts.  
-2. Run graphical machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker spurious correlations.  
+2. Run graphical LASSO machine learning model to learn the strongest conditional dependencies between tau accumulation in different brain regions and prune weaker spurious correlations.  
 3. Analyze graph metrics to determine differences in efficiency and organization of tau deposition at varying global amyloid burdens.   
 
 ## I. Data Cleaning  
@@ -16,16 +16,15 @@ A. Researchers can request the data used in this project from the [ADNI](https:/
 1. A list of de-identified subject IDs of the ADNI participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/ADNI/ADNI_patient_ids.csv) <br> 
 2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv) <br>
 
-    <img src="/readme_photos/Participant Selection Process.png" alt="Screenshot">
+    <img src="/readme_photos/selection.jpg" alt="Screenshot">
     <img src="/readme_photos/table1.png" alt="Screenshot">
 </div>
 
 
 B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cleaning_scripts](https://github.com/vkola-lab/jad2024/tree/main/data_paths_and_cleaning/data_cleaning_scripts) <br>
 
-   1. [merging_cent_tau_csvs.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/merging_cent_tau_csvs.ipynb) which merges the centiloid and tau SUVR raw csvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style [merged_adni/adni_at_amy_pos.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos.csv) where adni/a4 is whichever dataset that csv belongs to <br>
-   2. [adni_a4_data_harmonization.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/adni_a4_data_harmonization.ipynb)
-   which narrows down a list of 44 brain region shared across the ADNI and A4 data and saves them to [jad2024/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv) where a4/adni is the parent folder name for the csv depending ion whichever cohort that data belongs to. <br>
+   1. [merging_cent_tau_csvs.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/merging_cent_tau_csvs.ipynb) merges the centiloid and tau SUVR raw csvs into a master csv used for analysis and applies a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style [merged_adni/adni_at_amy_pos.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos.csv) where adni/a4 is whichever dataset that csv belongs to <br>
+   2. [adni_a4_data_harmonization.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/adni_a4_data_harmonization.ipynb) creates new harmonized dataframes for ADNI and A4 with the tau SUVR values for 44 bilateral brain regions and saves them to [jad2024/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv) where a4/adni is the parent folder name for the csv depending ion whichever cohort that data belongs to. <br>
 
 
 ## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
@@ -38,7 +37,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
 </div>
 
 
-2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_build_graphs.py) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
+2. [jad2024/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb) is a script that creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
 
 <div style="text-align:center;">
     <img src="/readme_photos/boxplot.jpg" alt="Screenshot">
