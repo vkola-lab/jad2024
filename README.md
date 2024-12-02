@@ -17,8 +17,10 @@ A. Researchers can request the data used in this project from the [ADNI](https:/
 2. A list of de-identified subject IDs for the A4 participants used in this project are located in [jad2024/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/demographic_csvs/A4/A4_patient_ids.csv) <br>
 
     <img src="/readme_photos/Participant Selection Process.png" alt="Screenshot">
+    <img src="/readme_photos/table1.png" alt="Screenshot">
 </div>
-   
+
+
 B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cleaning_scripts](https://github.com/vkola-lab/jad2024/tree/main/data_paths_and_cleaning/data_cleaning_scripts) <br>
 
    1. [merging_cent_tau_csvs.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/merging_cent_tau_csvs.ipynb) which merges the centiloid and tau SUVR raw csvs into a master csv used for analysis and also uses a centiloid cut off value of >=21 to create a new csv with only amyloid positive patients with naming style [merged_adni/adni_at_amy_pos.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/adni/merged_adni_at_amy_pos.csv) where adni/a4 is whichever dataset that csv belongs to <br>
@@ -40,6 +42,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
 
 <div style="text-align:center;">
     <img src="/readme_photos/boxplot.jpg" alt="Screenshot">
+    <img src="/readme_photos/table2.png" alt="Screenshot">
 </div>
 
 
