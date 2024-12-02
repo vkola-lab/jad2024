@@ -1,7 +1,7 @@
 # Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propagation in the Brain
 <br></br>
 <div style="text-align:center;">
-    <img src="/readme_photos/figure2_cap.jpg" alt="Screenshot">
+    <img src="/readme_photos/fig2_cap.jpg" alt="Screenshot">
 </div>
 <br></br>
 
@@ -30,7 +30,7 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
 ### Graphical Modeling Scripts 
 In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs): you will find scripts for hyperparamter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups <br> 
    1. [jad2024/analyze_graphs/hyperparamter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb): is a script to show how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied. A very high alpha results in a sparse precision matrix where almost all connections in the graph would be dropped and a very low alpha would result in no connections being dropped. Choosing an optimal alpha value ensures that the model is learning the most important relationships by dropping weak or spurious relationshiops, while still retaining vital connections in the data.
-    <div style="text-align:center;">
+  <div align="center">
     <img src="/readme_photos/fig3_nonzero_frac.jpg" alt="Screenshot">
 </div>
 
