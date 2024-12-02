@@ -3,7 +3,6 @@
 <div style="text-align:center;">
     <img src="/readme_photos/figure2.jpg" alt="Screenshot">
 </div>
-
 <br></br>
 
 In this repository, you will find all the code necessary to:  
