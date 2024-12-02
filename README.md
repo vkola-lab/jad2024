@@ -24,7 +24,7 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
    2. [adni_a4_data_harmonization.ipynb](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data_cleaning_scripts/adni_a4_data_harmonization.ipynb): creates new harmonized dataframes for ADNI and A4 with the tau SUVR values for 44 bilateral brain regions and saves them to [jad2024/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv](https://github.com/vkola-lab/jad2024/blob/main/data_paths_and_cleaning/data/intermediate_data/a4/merged_a4_at_amy_pos_bi_harm.csv) where a4/adni is the parent folder name for the csv depending ion whichever cohort that data belongs to. <br>
 <div align = "center>  
 <img src="/readme_photos/selection_cap.png" alt="Screenshot">
-/div>  
+</div>  
 ## II. Run Graphical Model, Visualize Graphs, and Analyze Metrics of Tau Efficiency
 
 ### Graphical Modeling Scripts 
