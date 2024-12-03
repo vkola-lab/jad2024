@@ -34,15 +34,15 @@ B. Data cleaning scripts are located in [jad2024/data_paths_and_cleaning/data_cl
 
 ### Graphical Modeling Scripts 
 
-In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs), you will find scripts for hyperparameter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups:
+[jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analyze_graphs) contains scripts for hyperparameter selection and running the graphical models on the data that has been divided into 3 centiloid quantile groups:
 
-1. [hyperparameter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb): This script shows how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied.
+1. [hyperparameter_tuning/bic.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/hyperparameter_tuning/bic.ipynb): demonstrates  how different hyperparameter (alpha) values affect the sparsity of the precision and covariance matrices and BIC of the graphical model used to determine the optimal strength of the L1 regularization (alpha) that should be applied.
    
 <div align="center">
     <img src="/readme_photos/new_bic.png" alt="Screenshot">
 </div>
 
-2. [construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb): This script creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
+2. [construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/streamlined_graphs_allinone.ipynb): is an all in one notebook for performing our graphical modeling analysis. It creates 1000 bootstrap samples of the data and fits a probabilistic graphical model to each bootstrapped sample, produces graph visualizations of the model's learned tau graph structure, and calculates metrics like weighted clustering coefficient, average shortest path length, and weighted small world coefficient to analyze how tau efficiency increases at higher amyloid burdens.
    
 <div style="text-align:center;">
     <img src="/readme_photos/new_box.png" alt="Screenshot">
@@ -52,7 +52,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
     <img src="/readme_photos/new_vis2.jpg" alt="Screenshot">
 </div>
 
-3. [construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb) This script performs significance testing between mean graph metrics among amyloid groups. It performs an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient.
+3. [construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb): performs significance testing between mean graph metrics among amyloid groups. It performs an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient.
 <div align="center">
     <img src="/readme_photos/new_anova.png" alt="Screenshot">
 </div>
