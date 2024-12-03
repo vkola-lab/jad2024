@@ -50,7 +50,7 @@ In [jad2024/analyze_graphs](https://github.com/vkola-lab/jad2024/tree/main/analy
     <img src="/readme_photos/new_vis2.jpg" alt="Screenshot">
 </div>
 <br />
-3. [jad2024/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb): This script performs significance testing between mean graph metrics among amyloid groups. It performs an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient.
+3. [analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb](https://github.com/vkola-lab/jad2024/blob/main/analyze_graphs/construct_and_analyze_graphs/sig_testing.ipynb): This script performs significance testing between mean graph metrics among amyloid groups. It performs an ANOVA test for clustering coefficient and average shortest path length and a Kruskal-Wallis test on small world coefficient.
 <br />
 <div align="center">
     <img src="/readme_photos/new_anova.png" alt="Screenshot">
