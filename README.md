@@ -1,4 +1,4 @@
-# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propagation in the Brain: Unsuprevised Statistical Machine Learning and Graphical Analysis of Alzheimer's Pathology Dynamics
+# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propagation in the Brain: A Statistical Machine Learning Graphical Analysis of Alzheimer's Pathology Dynamics
 
 <div align="center">
     <img src="/readme_photos/new_model.png" alt="Screenshot">
