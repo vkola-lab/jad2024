@@ -1,5 +1,6 @@
-# Increased Global Amyloid Burden Enhances Network Efficiency of Tau Propagation in the Brain 
-### A Statistical Machine Learning & Network Science Analysis of PET Pathology Dynamics in Alzheimer's Disease
+# Global amyloid burden enhances network efficiency of tau propagation in the brain
+
+This work is published in the _Journal of Alzheimer's Disease_ (https://doi.org/10.1177/13872877241294084).
 
 <div align="center">
     <img src="/readme_photos/new_model.png" alt="Screenshot">
